@@ -12,10 +12,10 @@ For my project my goal is to make a 2D space ship shooter that is very versatile
 - aiming system
 - walls
 - atleast one stage
-- AI controlled enemies
+- AI enemies
 - Statistics for enemies and player(health, damage calculations)
-- Atleast two different enemies
-- Atleast two player classes
+- An enemy
+- A player
 - player sprites
 - enemy sprites
 - collision detection(walls, enemies, bullets)
@@ -24,12 +24,10 @@ For my project my goal is to make a 2D space ship shooter that is very versatile
 
 ## Nice To Have List
 - multiple gamemodes
-- multiplayer feature 
 - player animation
 - enemy animation
 - bullet animation 
 - auto-aim feature
-- different camera modes
 - mini map
 - multiple different player classes
 - multiple different enemy classes
@@ -45,3 +43,6 @@ For my project my goal is to make a 2D space ship shooter that is very versatile
 - sound effects
 - practice mode
 - story mode
+- smart AI enemies
+- different camera modes
+- multiplayer feature 

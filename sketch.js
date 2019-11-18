@@ -5,46 +5,58 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-
-let theBullets = [];
+let grid;
+let rows = 30;
+let cols = 30;
+let playerX = 15;
+let playerY = 15;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  windowResized();
+  grid = createEmptyGrid(cols, rows);
+  grid[playerY][playerX] = 1;
+  
 }
 
 function draw() {
   background(255);
-  for (let i = 0;i< theBullets.length;i++){
-    theBullets[i].move();
-    theBullets[i].display();
+  displayGrid(grid, rows, cols);
+}
+
+function createEmptyGrid() {
+  let emptyGrid = [];
+  for (let x = 0; x < cols; x++) {
+    emptyGrid.push([]);
+    for (let y = 0; y < rows; y++) {
+      emptyGrid[x].push(0);
+    }
   }
-  if (mouseIsPressed){
-    let myBullet = new Bullet(mouseX,mouseY,random(-3,3),random(-3,3), 10 * 2);
-    theBullets.push(myBullet);
+  return emptyGrid;
+}
+
+function displayGrid(grid, rows, cols) {
+  let cellSize = width / cols;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 0) {
+        fill(0);
+        stroke(0)
+      }
+      else if(grid[y][x] === 1) {
+        fill(51,171,249);
+        stroke(51,171,249);
+      }
+      rect(x*cellSize, y*cellSize, cellSize, cellSize);
+    }
   }
 }
 
-// function mousePressed() {
-//   let myBullet = new Bullet(mouseX,mouseY,random(-3,3),random(-3,3), 10 * 2);
-//   theBullets.push(myBullet);
-// }
-
-class Bullet {
-  constructor(x,y,dx,dy,radius) {
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.radius = radius;
+function windowResized() {
+  if (windowWidth > windowHeight) {
+    createCanvas(windowHeight, windowHeight);
   }
-
-  display() {
-    fill(0);
-    circle(this.x,this.y,this.radius * 2);
-  }
-
-  move() {
-    this.x += this.dx;
-    this.y += this.dy;
+  else {
+    createCanvas(windowWidth, windowWidth);
   }
 }
+
