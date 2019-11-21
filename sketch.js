@@ -8,32 +8,28 @@
 let grid;
 let rows = 50;
 let cols = 50;
-let playerX = 15;
-let playerY = 15;
+let playerX = 100;
+let playerY = 100;
 let yVelocity = 0;
 let xVelocity = 0;
-let up = false;
-let down = false;
-let right = false;
-let left = false;
+let yCoord;
+let xCoord;
 
 
 
 function setup() {
   windowResized();
+  rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
-  grid[playerY][playerX] = 1;
   
 }
 
 function draw() {
   background(255);
   displayGrid(grid, rows, cols);
-  if (frameCount%10 === 0) {
-    keyReleased();
-    playerMovement();
-    console.log(down);
-  }
+  create();
+  keyReleased();
+  
 }
 
 function createEmptyGrid() {
@@ -56,8 +52,13 @@ function displayGrid(grid, rows, cols) {
         stroke(0)
       }
       else if(grid[y][x] === 1) {
-        fill(51,171,249);
-        stroke(51,171,249);
+        if (y === yCoord && x === xCoord){
+          fill(51,171,249);
+          stroke(51,171,249);
+        }else{
+          fill(0);
+          stroke(0)
+        }
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
@@ -76,61 +77,38 @@ function windowResized() {
 function keyReleased() {
   
   if (key === "s") {
-    down = !down;
-    left = false;
-    right = false;
-    up = false;
+    yVelocity = 5;
+    xVelocity = 0;
   }
 
   else if (key === "d") {
-    down = false;
-    left = false;
-    right = !right;
-    up = false;
+    yVelocity = 0;
+    xVelocity = 5;
     
   }
   else if (key === "a") {
-    down = false;
-    left = !left;
-    right = false;
-    up = false;
+    yVelocity = 0;
+    xVelocity = -5;
   }
   else if (key === "w") {
-    down = false;
-    left = false;
-    right = false;
-    up = !up;
-  }
-  
-  
-}
-function playerMovement() {
-
-  grid[playerY][playerX] = 0;
-
-  if(down) {
-    yVelocity = 1;
+    yVelocity = -5;
     xVelocity = 0;
   }
-  else if(up) {
-    yVelocity = -1;
-    xVelocity = 0;
-  }
-  else if(right) {
-    yVelocity = 0;
-    xVelocity = 1;
-  }
-  else if(left) {
-    yVelocity = 0;
-    xVelocity = -1;
-  }else{
-    yVelocity = 0;
-    xVelocity = 0;
-  }
-  
-  
   playerY += yVelocity;
   playerX += xVelocity;
   
-  grid[playerY][playerX] = 1;
+}
+
+ function create() {
+   let cellSize = width/cols;
+
+    xCoord = floor(playerX / cellSize);
+    yCoord = floor(playerY / cellSize);
+
+   if (grid[yCoord][xCoord] === 0) {
+    grid[yCoord][xCoord] = 1;
+  }
+  
+  fill(255);
+  rect(playerX,playerY,50,50);
  }
