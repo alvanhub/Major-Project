@@ -12,8 +12,10 @@ let playerX = 100;
 let playerY = 100;
 let yVelocity = 0;
 let xVelocity = 0;
-let yCoord;
 let xCoord;
+let yCoord;
+let player;
+
 
 
 
@@ -21,14 +23,14 @@ function setup() {
   windowResized();
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
-  
+  player = new Player;
 }
 
 function draw() {
   background(255);
   displayGrid(grid, rows, cols);
-  create();
-  keyReleased();
+  player.keyControl();
+  player.create();
   
 }
 
@@ -76,39 +78,121 @@ function windowResized() {
 
 function keyReleased() {
   
-  if (key === "s") {
-    yVelocity = 5;
+  if (keyIsDown(DOWN_ARROW)) {
+    if(yVelocity < 15){
+      yVelocity += 1;
+    }
     xVelocity = 0;
   }
 
-  else if (key === "d") {
+  if (keyIsDown(RIGHT_ARROW)) {
     yVelocity = 0;
-    xVelocity = 5;
-    
+    if(xVelocity < 15){
+      xVelocity += 1;
+    }
   }
-  else if (key === "a") {
+  if (keyIsDown(LEFT_ARROW)) {
     yVelocity = 0;
-    xVelocity = -5;
+    if(xVelocity > -15){
+      xVelocity -= 1;
+    }
   }
-  else if (key === "w") {
-    yVelocity = -5;
+  if (keyIsDown(UP_ARROW)) {
+    if(yVelocity > -15){
+      yVelocity -= 1;
+    }
     xVelocity = 0;
   }
+
+  else{
+    if(xVelocity < 0) {
+      xVelocity += 0.2;
+    }else if(xVelocity > 0) {
+      xVelocity -= 0.2;
+    }
+
+    if(yVelocity < 0) {
+      yVelocity += 0.2;
+    }else if(yVelocity > 0) {
+      yVelocity -= 0.2;
+    }
+  }
+
   playerY += yVelocity;
   playerX += xVelocity;
   
+  
 }
 
- function create() {
-   let cellSize = width/cols;
+ 
 
-    xCoord = floor(playerX / cellSize);
-    yCoord = floor(playerY / cellSize);
+ class Player {
+   constructor() {
+    this.playerX = 100;
+    this.playerY = 100;
+    this.yVelocity = 0;
+    this.xVelocity = 0;
+   }
 
-   if (grid[yCoord][xCoord] === 0) {
-    grid[yCoord][xCoord] = 1;
+   create() {
+    let cellSize = width/cols;
+ 
+     xCoord = floor(playerX / cellSize);
+     yCoord = floor(playerY / cellSize);
+ 
+    if (grid[yCoord][xCoord] === 0) {
+     grid[yCoord][xCoord] = 1;
+   }
+   
+   fill(255);
+   rect(playerX,playerY,50,50);
   }
+
+  keyControl() {
   
-  fill(255);
-  rect(playerX,playerY,50,50);
+    if (keyIsDown(DOWN_ARROW)) {
+      if(this.yVelocity < 15){
+        this.yVelocity += 1;
+      }
+      this.xVelocity = 0;
+    }
+  
+    if (keyIsDown(RIGHT_ARROW)) {
+      this.yVelocity = 0;
+      if(this.xVelocity < 15){
+        this.xVelocity += 1;
+      }
+    }
+    if (keyIsDown(LEFT_ARROW)) {
+      this.yVelocity = 0;
+      if(this.xVelocity > -15){
+        this.xVelocity -= 1;
+      }
+    }
+    if (keyIsDown(UP_ARROW)) {
+      if(this.yVelocity > -15){
+        this.yVelocity -= 1;
+      }
+      this.xVelocity = 0;
+    }
+  
+    else{
+      if(this.xVelocity < 0) {
+        this.xVelocity += 0.2;
+      }else if(this.xVelocity > 0) {
+        this.xVelocity -= 0.2;
+      }
+  
+      if(this.yVelocity < 0) {
+        this.yVelocity += 0.2;
+      }else if(this.yVelocity > 0) {
+        this.yVelocity -= 0.2;
+      }
+    }
+  
+    this.playerY += this.yVelocity;
+    this.playerX += this.xVelocity;
+  }
  }
+
+ 
