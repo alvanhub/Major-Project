@@ -21,13 +21,13 @@ function setup() {
   windowResized();
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
-  player = new Player;
+  player = new Player();
 }
 
 function draw() {
   background(255);
   displayGrid(grid, rows, cols);
-  player.teleport();
+  // player.teleport();
   player.keyControl();
   player.create();
   
@@ -90,10 +90,10 @@ function windowResized() {
     this.playerY = 100;
     this.yVelocity = 0;
     this.xVelocity = 0;
-    this.north = playerY-300;
-    this.south = playerY+300;
-    this.west = playerX-300;
-    this.east = playerX+300;
+    this.north = playerY-200;
+    this.south = playerY+200;
+    this.west = playerX-200;
+    this.east = playerX+200;
    }
 
    create() {
@@ -187,12 +187,9 @@ function windowResized() {
         this.yVelocity -= 1;
       }
       this.xVelocity = 0;
-      if(keyCode === SHIFT){
-        this.playerY -= 299;
-      }else{
-        fill(225);
-        rect(this.playerX,this.north,40,40);
-      }
+      fill(225);
+      rect(this.playerX,this.north,40,40);
+      
     }
   
     else{
@@ -216,9 +213,18 @@ function windowResized() {
     this.west += this.xVelocity;
   }
 
-  teleport() {
-    
-  }
+  
  }
 
  
+ function keyPressed() {
+   if (keyCode === UP_ARROW) {
+     player.direction = "UP";
+   }
+   if (keyCode === UP_ARROW) {
+    player.direction = "UP";
+  }
+   if(keyCode === SHIFT){
+    this.playerY = this.playerY - 200;
+  }
+ }
