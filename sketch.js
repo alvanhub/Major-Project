@@ -13,6 +13,8 @@ let playerY = 100;
 let xCoord;
 let yCoord;
 let player;
+let direction = "up";
+let gate = "closed";
 
 
 
@@ -27,8 +29,9 @@ function setup() {
 function draw() {
   background(255);
   displayGrid(grid, rows, cols);
-  // player.teleport();
-  player.keyControl();
+  // keyPressed();
+  // player.keyControl();
+  player.teleport();
   player.create();
   
 }
@@ -211,6 +214,34 @@ function windowResized() {
     this.playerX += this.xVelocity;
     this.east += this.xVelocity;
     this.west += this.xVelocity;
+
+    console.log(this.playerX);
+  }
+
+  teleport() {
+    if (gate === "open") {
+      if (direction === "up"){
+        this.playerY -= 200;
+        this.north -= 200;
+        this.south -= 200;
+      }
+      if (direction === "down"){
+        this.playerY += 200;
+        this.north += 200;
+        this.south += 200;
+      }
+      if (direction === "left"){
+        this.playerX -= 200;
+        this.east -= 200;
+        this.west -= 200;
+      }
+      if (direction === "right"){
+        this.playerX += 200;
+        this.east += 200;
+        this.west += 200;
+      }
+    }
+    gate = "closed";
   }
 
   
@@ -219,12 +250,18 @@ function windowResized() {
  
  function keyPressed() {
    if (keyCode === UP_ARROW) {
-     player.direction = "UP";
+     direction = "up";
    }
-   if (keyCode === UP_ARROW) {
-    player.direction = "UP";
+   if (keyCode === DOWN_ARROW) {
+    direction = "down";
+  }
+  if (keyCode === RIGHT_ARROW) {
+    direction = "right";
+  }
+  if (keyCode === LEFT_ARROW) {
+    direction = "left";
   }
    if(keyCode === SHIFT){
-    this.playerY = this.playerY - 200;
+    gate = "open"
   }
  }
