@@ -15,6 +15,8 @@ let yCoord;
 let player;
 let direction = "up";
 let gate = "closed";
+let playerPositions = [];
+let maxPos = 7;
 
 
 
@@ -30,7 +32,7 @@ function draw() {
   background(255);
   displayGrid(grid, rows, cols);
   // keyPressed();
-  // player.keyControl();
+  player.keyControl();
   player.teleport();
   player.create();
   
@@ -97,6 +99,8 @@ function windowResized() {
     this.south = playerY+200;
     this.west = playerX-200;
     this.east = playerX+200;
+    this.shiftX = 100;
+    this.shiftY = 100;
    }
 
    create() {
@@ -156,6 +160,7 @@ function windowResized() {
    
    fill(225);
    rect(this.playerX,this.playerY,40,40);
+
   }
 
   keyControl() {
@@ -164,13 +169,11 @@ function windowResized() {
       if(this.yVelocity < 15){
         this.yVelocity += 1;
       }
-      this.xVelocity = 0;
       fill(225);
       rect(this.playerX,this.south,40,40);
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
-      this.yVelocity = 0;
       if(this.xVelocity < 15){
         this.xVelocity += 1;
       }
@@ -178,7 +181,6 @@ function windowResized() {
       rect(this.east,this.playerY,40,40);
     }
     if (keyIsDown(LEFT_ARROW)) {
-      this.yVelocity = 0;
       if(this.xVelocity > -15){
         this.xVelocity -= 1;
         fill(225);
@@ -189,7 +191,6 @@ function windowResized() {
       if(this.yVelocity > -15){
         this.yVelocity -= 1;
       }
-      this.xVelocity = 0;
       fill(225);
       rect(this.playerX,this.north,40,40);
       
@@ -214,12 +215,18 @@ function windowResized() {
     this.playerX += this.xVelocity;
     this.east += this.xVelocity;
     this.west += this.xVelocity;
+    this.shiftX += this.xVelocity;
+    this.shiftY += this.yVelocity;
 
-    console.log(this.playerX);
+    console.log(this.playerY);
   }
 
   teleport() {
+    playerPositions.push({x:this.playerX, y:this.playerY});
     if (gate === "open") {
+      for (let i = 0; i < playerPositions.length; i += 1) {
+        rect(playerPositions[i].x,playerPositions[i].y,40,40);
+      }
       if (direction === "up"){
         this.playerY -= 200;
         this.north -= 200;
@@ -242,9 +249,14 @@ function windowResized() {
       }
     }
     gate = "closed";
+
+    if (gate === "closed") {
+    if (playerPositions.length > maxPos) {
+      playerPositions.shift();
+    }
+    }
   }
 
-  
  }
 
  
