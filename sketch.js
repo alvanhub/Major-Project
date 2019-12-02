@@ -19,8 +19,7 @@ let playerPositions = [];
 let maxPos = 7;
 let playerAngle;
 let bullets = [];
-let bX;
-let bY;
+
 
 
 
@@ -30,6 +29,7 @@ function setup() {
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
+  bullet = new playerBullet();
 }
 
 function draw() {
@@ -39,7 +39,7 @@ function draw() {
   player.create();
   player.keyControl();
   player.teleport();
-  player.createBullet();
+  bullet.createBullet();
   
 }
 
@@ -103,8 +103,8 @@ function windowResized() {
 
  class Player {
    constructor() {
-    this.playerX = 20;
-    this.playerY = 20;
+    this.playerX = 100;
+    this.playerY = 100;
     this.yVelocity = 0;
     this.xVelocity = 0;
     this.north = playerY-200;
@@ -233,7 +233,7 @@ function windowResized() {
     this.shiftX += this.xVelocity;
     this.shiftY += this.yVelocity;
 
-    console.log(this.playerY);
+    
   }
 
   teleport() {
@@ -274,12 +274,24 @@ function windowResized() {
     }
   }
 
-  shoot() {
+
+ }
+
+ class playerBullet {
+   constructor() {
+     this.x = 100;
+     this.y = 200;
+     this.speed = 30;
+     this.bx;
+     this.by;
+   }
+
+   shoot() {
     let thisBullet = {
-      x: this.playerX,
-      y: this.playerY,
+      x: this.x,
+      y: this.y,
       angle: playerAngle,
-      speed: 30
+      speed: this.speed
     };
     bullets.push(thisBullet);
   }
@@ -288,8 +300,8 @@ function windowResized() {
     let cell = width/cols;
  
     for (let i = 0; i < bullets.length; i++) {
-      bX = floor(bullets[i].x/cell);
-      bY = floor(bullets[i].y/cell);
+      this.bX = floor(bullets[i].x/cell);
+      this.bY = floor(bullets[i].y/cell);
       if (bullets[i].x < 0 || bullets[i].x > width || bullets[i].y < 0 || bullets[i].y > height) {
         bullets.splice(i, 1);
     }
@@ -298,16 +310,15 @@ function windowResized() {
       bullets[i].y += bullets[i].speed * sin(bullets[i].angle);
       circle(bullets[i].x, bullets[i].y, 10);
     }
-    if(grid[bY][bX] === 0) {
-      grid[bY][bX] = 2;
+    if(grid[this.bY][this.bX] === 0) {
+      grid[this.bY][this.bX] = 2;
+      }
     }
   }
-  }
-
  }
 
  function mousePressed() {
-   player.shoot();
+   bullet.shoot();
  }
 
  
