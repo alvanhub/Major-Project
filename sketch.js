@@ -17,6 +17,10 @@ let direction = "up";
 let gate = "closed";
 let playerPositions = [];
 let maxPos = 7;
+let playerAngle;
+let bullets = [];
+let bX;
+let bY;
 
 
 
@@ -32,9 +36,10 @@ function draw() {
   background(255);
   displayGrid(grid, rows, cols);
   // keyPressed();
+  player.create();
   player.keyControl();
   player.teleport();
-  player.create();
+  player.createBullet();
   
 }
 
@@ -66,9 +71,16 @@ function displayGrid(grid, rows, cols) {
           || y === yCoord+2 && x === xCoord-1){
           fill(51,171,249);
           stroke(51,171,249);
-        }else{
-          fill(0);
-          stroke(0)
+        }
+        else{
+          grid[y][x] = 0;
+        }
+      }else if(grid[y][x] === 2) {
+        if (y === bY && x === bX) {
+          fill(0,255,0);
+          stroke(0,255,0);
+        }else {
+           grid[y][x] = 0;
         }
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
@@ -91,16 +103,14 @@ function windowResized() {
 
  class Player {
    constructor() {
-    this.playerX = 100;
-    this.playerY = 100;
+    this.playerX = 20;
+    this.playerY = 20;
     this.yVelocity = 0;
     this.xVelocity = 0;
     this.north = playerY-200;
     this.south = playerY+200;
     this.west = playerX-200;
     this.east = playerX+200;
-    this.shiftX = 100;
-    this.shiftY = 100;
    }
 
    create() {
@@ -158,8 +168,13 @@ function windowResized() {
       grid[yCoord+2][xCoord-1] = 1;
     }
    
+    
+     playerAngle = atan2(mouseY - this.playerY, mouseX - this.playerX);
+    // rotate(playerAngle);
    fill(225);
    rect(this.playerX,this.playerY,40,40);
+   
+   
 
   }
 
@@ -224,6 +239,8 @@ function windowResized() {
   teleport() {
     playerPositions.push({x:this.playerX, y:this.playerY});
     if (gate === "open") {
+      this.yVelocity = 2;
+      this.xVelocity = 2;
       for (let i = 0; i < playerPositions.length; i += 1) {
         rect(playerPositions[i].x,playerPositions[i].y,40,40);
       }
@@ -251,12 +268,46 @@ function windowResized() {
     gate = "closed";
 
     if (gate === "closed") {
-    if (playerPositions.length > maxPos) {
-      playerPositions.shift();
-    }
+      if (playerPositions.length > maxPos) {
+        playerPositions.shift();
+      }
     }
   }
 
+  shoot() {
+    let thisBullet = {
+      x: this.playerX,
+      y: this.playerY,
+      angle: playerAngle,
+      speed: 30
+    };
+    bullets.push(thisBullet);
+  }
+
+  createBullet() {
+    let cell = width/cols;
+ 
+    for (let i = 0; i < bullets.length; i++) {
+      bX = floor(bullets[i].x/cell);
+      bY = floor(bullets[i].y/cell);
+      if (bullets[i].x < 0 || bullets[i].x > width || bullets[i].y < 0 || bullets[i].y > height) {
+        bullets.splice(i, 1);
+    }
+    else {
+      bullets[i].x += bullets[i].speed * cos(bullets[i].angle);
+      bullets[i].y += bullets[i].speed * sin(bullets[i].angle);
+      circle(bullets[i].x, bullets[i].y, 10);
+    }
+    if(grid[bY][bX] === 0) {
+      grid[bY][bX] = 2;
+    }
+  }
+  }
+
+ }
+
+ function mousePressed() {
+   player.shoot();
  }
 
  
