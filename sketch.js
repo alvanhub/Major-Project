@@ -24,6 +24,7 @@ let bullets = [];
 
 
 
+
 function setup() {
   windowResized();
   rectMode(CENTER);
@@ -40,7 +41,7 @@ function draw() {
   player.keyControl();
   player.teleport();
   bullet.createBullet();
-  bullet.displayBullets();
+  // bullet.displayBullets();
   
 }
 
@@ -75,6 +76,14 @@ function displayGrid(grid, rows, cols) {
         }
         else{
           grid[y][x] = 0;
+        }
+      }
+      if(grid[y][x] === 2) {
+        if (y === bY && x === bX) {
+          fill(0,255,0);
+          stroke(0,255,0);
+        }else {
+           grid[y][x] = 0;
         }
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
@@ -274,7 +283,7 @@ function windowResized() {
  class playerBullet {
    constructor(x,y) {
      this.x = 100;
-     this.y = 200;
+     this.y = 100;
      this.speed = 30;
      this.bX;
      this.bY;
@@ -292,7 +301,7 @@ function windowResized() {
 
   createBullet() {
     let cell = width/cols;
- 
+    
     for (let i = 0; i < bullets.length; i++) {
       this.bX = floor(bullets[i].x/cell);
       this.bY = floor(bullets[i].y/cell);
@@ -310,20 +319,20 @@ function windowResized() {
     }
   }
 
-  displayBullets(){
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        if(grid[y][x] === 2) {
-          if (y === this.bY && x === this.bX) {
-            fill(0,255,0);
-            stroke(0,255,0);
-          }else {
-             grid[y][x] = 0;
-          }
-        }
-      }
-    }
-  }
+  // displayBullets(){
+  //   for (let y = 0; y < rows; y++) {
+  //     for (let x = 0; x < cols; x++) {
+  //       if(grid[y][x] === 2) {
+  //         if (y === this.bY && x === this.bX) {
+  //           fill(0,255,0);
+  //           stroke(0,255,0);
+  //         }else {
+  //            grid[y][x] = 0;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
  }
 
  function mousePressed() {
