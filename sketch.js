@@ -25,12 +25,12 @@ let bullets = [];
 
 
 
+
 function setup() {
   windowResized();
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
-  bullet = new playerBullet();
 }
 
 function draw() {
@@ -40,8 +40,10 @@ function draw() {
   player.create();
   player.keyControl();
   player.teleport();
-  bullet.createBullet();
-  // bullet.displayBullets();
+  for (let i =0; i < bullets.length; i++) {
+       bullets[i].update();
+     }
+
   
 }
 
@@ -79,12 +81,8 @@ function displayGrid(grid, rows, cols) {
         }
       }
       if(grid[y][x] === 2) {
-        if (y === bY && x === bX) {
           fill(0,255,0);
           stroke(0,255,0);
-        }else {
-           grid[y][x] = 0;
-        }
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
@@ -280,63 +278,36 @@ function windowResized() {
 
  }
 
+
+
  class playerBullet {
    constructor(x,y) {
-     this.x = 100;
-     this.y = 100;
-     this.speed = 30;
+     this.x = x;
+     this.y = y;
+     this.speed = 25;
      this.bX;
      this.bY;
+     this.oldX = this.x;
+     this.oldY = this.y;
+
    }
 
-   shoot() {
-    let thisBullet = {
-      x: this.x,
-      y: this.y,
-      angle: playerAngle,
-      speed: this.speed
-    };
-    bullets.push(thisBullet);
-  }
+   update() {
+     this.x += this.speed*cos(playerAngle);
+     this.y += this.speed*sin(playerAngle);
+     circle(this.x, this.y,30);
+    }
 
-  createBullet() {
-    let cell = width/cols;
-    
-    for (let i = 0; i < bullets.length; i++) {
-      this.bX = floor(bullets[i].x/cell);
-      this.bY = floor(bullets[i].y/cell);
-      if (bullets[i].x < 0 || bullets[i].x > width || bullets[i].y < 0 || bullets[i].y > height) {
-        bullets.splice(i, 1);
-    }
-    else {
-      bullets[i].x += bullets[i].speed * cos(bullets[i].angle);
-      bullets[i].y += bullets[i].speed * sin(bullets[i].angle);
-      circle(bullets[i].x, bullets[i].y, 10);
-    }
-    if(grid[this.bY][this.bX] === 0) {
-      grid[this.bY][this.bX] = 2;
-      }
+    gridUpdate() {
+
     }
   }
 
-  // displayBullets(){
-  //   for (let y = 0; y < rows; y++) {
-  //     for (let x = 0; x < cols; x++) {
-  //       if(grid[y][x] === 2) {
-  //         if (y === this.bY && x === this.bX) {
-  //           fill(0,255,0);
-  //           stroke(0,255,0);
-  //         }else {
-  //            grid[y][x] = 0;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
- }
+ 
 
  function mousePressed() {
-   bullet.shoot();
+  myB = new playerBullet(100,100);
+  bullets.push(myB);
  }
 
  
@@ -357,3 +328,19 @@ function windowResized() {
     gate = "open"
   }
  }
+
+//  let cell = width/cols;
+    
+    // for (let i = 0; i < bullets.length; i++) {
+    //   this.oldX = floor(bullets[i].x/cell);
+    //   this.oldY = floor(bullets[i].y/cell);
+    //   this.bX = floor(bullets[i].x/cell);
+    //   this.bY = floor(bullets[i].y/cell);
+    //   if (bullets[i].x < 0 || bullets[i].x > width || bullets[i].y < 0 || bullets[i].y > height) {
+    //     bullets.splice(i, 1);
+    // }
+    // else {
+    //   bullets[i].x += bullets[i].speed * cos(bullets[i].angle);
+    //   bullets[i].y += bullets[i].speed * sin(bullets[i].angle);
+    //   circle(bullets[i].x, bullets[i].y, 10);
+    // }
