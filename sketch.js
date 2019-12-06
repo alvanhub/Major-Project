@@ -42,6 +42,7 @@ function draw() {
   player.teleport();
   for (let i =0; i < bullets.length; i++) {
        bullets[i].update();
+       bullets[i].create();
      }
 
   
@@ -295,11 +296,20 @@ function windowResized() {
    update() {
      this.x += this.speed*cos(playerAngle);
      this.y += this.speed*sin(playerAngle);
-     circle(this.x, this.y,30);
+     this.oldX = this.x;
+     this.oldY = this.y;
+    }
+    create() {
+      circle(this.x, this.y,30);
     }
 
     gridUpdate() {
-
+      let cell = width/cols;
+      let xPos = floor(this.x/cell);
+      let yPos = floor(this.y/cell);
+      if (grid[yPos][xPos]===0){
+        grid[yPos][xPos] = 2;
+      }
     }
   }
 
