@@ -8,8 +8,8 @@
 let grid;
 let rows = 50;
 let cols = 50;
-let playerX = 100;
-let playerY = 100;
+let pBulletX = 100;
+let pBulletY = 100;
 let xCoord;
 let yCoord;
 let player;
@@ -18,6 +18,7 @@ let gate = "closed";
 let playerPositions = [];
 let maxPos = 7;
 let playerAngle;
+let bulletAngle;
 let bullets = [];
 
 
@@ -41,11 +42,15 @@ function draw() {
   player.keyControl();
   player.teleport();
   for (let i =0; i < bullets.length; i++) {
-       bullets[i].update();
-       bullets[i].create();
-     }
+    bullets[i].update();
+    bullets[i].create();
+    bullets[i].gridUpdate();
+    if (bullets[i].x < 0 || bullets[i].x > width ||
+      bullets[i].y < 0 || bullets[i].y > height) {
+        bullets.splice(i, 1);
+    }
+  }
 
-  
 }
 
 function createEmptyGrid() {
@@ -90,6 +95,7 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
+
 function windowResized() {
   if (windowWidth > windowHeight) {
     createCanvas(windowHeight, windowHeight);
@@ -109,10 +115,10 @@ function windowResized() {
     this.playerY = 100;
     this.yVelocity = 0;
     this.xVelocity = 0;
-    this.north = playerY-200;
-    this.south = playerY+200;
-    this.west = playerX-200;
-    this.east = playerX+200;
+    this.north = this.playerY-200;
+    this.south = this.playerY+200;
+    this.west = this.playerX-200;
+    this.east = this.playerX+200;
    }
 
    create() {
@@ -232,8 +238,8 @@ function windowResized() {
     this.playerX += this.xVelocity;
     this.east += this.xVelocity;
     this.west += this.xVelocity;
-    this.shiftX += this.xVelocity;
-    this.shiftY += this.yVelocity;
+    pBulletX += this.xVelocity;
+    pBulletY += this.yVelocity;
 
     
   }
@@ -241,31 +247,41 @@ function windowResized() {
   teleport() {
     playerPositions.push({x:this.playerX, y:this.playerY});
     if (gate === "open") {
-      this.yVelocity = 2;
-      this.xVelocity = 2;
       for (let i = 0; i < playerPositions.length; i += 1) {
         rect(playerPositions[i].x,playerPositions[i].y,40,40);
       }
       if (direction === "up"){
         this.playerY -= 200;
+        pBulletY -= 200;
         this.north -= 200;
         this.south -= 200;
       }
       if (direction === "down"){
         this.playerY += 200;
+        pBulletY += 200;
         this.north += 200;
         this.south += 200;
       }
       if (direction === "left"){
         this.playerX -= 200;
+        pBulletX -= 200;
         this.east -= 200;
         this.west -= 200;
       }
       if (direction === "right"){
         this.playerX += 200;
+        pBulletX += 200;
         this.east += 200;
         this.west += 200;
       }
+      this.playerY += this.yVelocity;
+    this.south += this.yVelocity;
+    this.north += this.yVelocity;
+    this.playerX += this.xVelocity;
+    this.east += this.xVelocity;
+    this.west += this.xVelocity;
+    pBulletX += this.xVelocity;
+    pBulletY += this.yVelocity;
     }
     gate = "closed";
 
@@ -286,8 +302,6 @@ function windowResized() {
      this.x = x;
      this.y = y;
      this.speed = 25;
-     this.bX;
-     this.bY;
      this.oldX = this.x;
      this.oldY = this.y;
 
@@ -296,27 +310,40 @@ function windowResized() {
    update() {
      this.x += this.speed*cos(playerAngle);
      this.y += this.speed*sin(playerAngle);
-     this.oldX = this.x;
-     this.oldY = this.y;
     }
-    create() {
-      circle(this.x, this.y,30);
+   create() {
+     bulletAngle = atan2(mouseY - this.y, mouseX - this.x);
+      circle(this.x, this.y,15);
     }
 
     gridUpdate() {
       let cell = width/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
+      let oXPos = floor(this.oldX/cell);
+      let oYPos = floor(this.oldY/cell);
+
       if (grid[yPos][xPos]===0){
         grid[yPos][xPos] = 2;
       }
+      if(grid[oYPos][oXPos]=== 2) {
+        grid[oYPos][oXPos] = 0;
+      }
+
+      this.oldX = this.x;
+      this.oldY = this.y;
     }
+
+  }
+
+  function changePosition() {
+
   }
 
  
 
  function mousePressed() {
-  myB = new playerBullet(100,100);
+  myB = new playerBullet(pBulletX,pBulletY);
   bullets.push(myB);
  }
 
@@ -339,18 +366,3 @@ function windowResized() {
   }
  }
 
-//  let cell = width/cols;
-    
-    // for (let i = 0; i < bullets.length; i++) {
-    //   this.oldX = floor(bullets[i].x/cell);
-    //   this.oldY = floor(bullets[i].y/cell);
-    //   this.bX = floor(bullets[i].x/cell);
-    //   this.bY = floor(bullets[i].y/cell);
-    //   if (bullets[i].x < 0 || bullets[i].x > width || bullets[i].y < 0 || bullets[i].y > height) {
-    //     bullets.splice(i, 1);
-    // }
-    // else {
-    //   bullets[i].x += bullets[i].speed * cos(bullets[i].angle);
-    //   bullets[i].y += bullets[i].speed * sin(bullets[i].angle);
-    //   circle(bullets[i].x, bullets[i].y, 10);
-    // }
