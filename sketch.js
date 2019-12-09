@@ -6,8 +6,9 @@
 // - describe what you did to take this project "above and beyond"
 
 let grid;
-let rows = 50;
-let cols = 50;
+let rows = 90;
+let cols = 90;
+let gridW = 1200;
 let pBulletX = 100;
 let pBulletY = 100;
 let xCoord;
@@ -20,6 +21,8 @@ let maxPos = 7;
 let playerAngle;
 let bulletAngle;
 let bullets = [];
+let yT = 0;
+let xT = 0;
 
 
 
@@ -36,6 +39,7 @@ function setup() {
 
 function draw() {
   background(255);
+  translate(xT,yT);
   displayGrid(grid, rows, cols);
   // keyPressed();
   player.create();
@@ -65,7 +69,7 @@ function createEmptyGrid() {
 }
 
 function displayGrid(grid, rows, cols) {
-  let cellSize = width / cols;
+  let cellSize = gridW / cols;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
@@ -122,7 +126,7 @@ function windowResized() {
    }
 
    create() {
-     let cellSize = width/cols;
+     let cellSize = gridW/cols;
  
      xCoord = floor(this.playerX / cellSize);
      yCoord = floor(this.playerY / cellSize);
@@ -189,34 +193,37 @@ function windowResized() {
   keyControl() {
   
     if (keyIsDown(DOWN_ARROW)) {
-      if(this.yVelocity < 15){
+      if(this.yVelocity < 10){
         this.yVelocity += 1;
       }
       fill(225);
       rect(this.playerX,this.south,40,40);
+      yT -= 5;
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
-      if(this.xVelocity < 15){
+      if(this.xVelocity < 10){
         this.xVelocity += 1;
       }
       fill(225);
       rect(this.east,this.playerY,40,40);
+      xT -= 5;
     }
     if (keyIsDown(LEFT_ARROW)) {
-      if(this.xVelocity > -15){
+      if(this.xVelocity > -10){
         this.xVelocity -= 1;
         fill(225);
         rect(this.west,this.playerY,40,40);
       }
+      xT += 5;
     }
     if (keyIsDown(UP_ARROW)) {
-      if(this.yVelocity > -15){
+      if(this.yVelocity > -10){
         this.yVelocity -= 1;
       }
       fill(225);
       rect(this.playerX,this.north,40,40);
-      
+      yT += 5;
     }
   
     else{
@@ -317,7 +324,7 @@ function windowResized() {
     }
 
     gridUpdate() {
-      let cell = width/cols;
+      let cell = gridW/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
       let oXPos = floor(this.oldX/cell);
@@ -363,6 +370,9 @@ function windowResized() {
   }
    if(keyCode === SHIFT){
     gate = "open"
+  }
+  if (key === 'a') {
+    xT += 1;
   }
  }
 
