@@ -6,9 +6,9 @@
 // - describe what you did to take this project "above and beyond"
 
 let grid;
-let rows = 90;
-let cols = 90;
-let gridW = 1200;
+let rows = 95;
+let cols = 95;
+let gridW = 1750;
 let pBulletX = 500;
 let pBulletY = 500;
 let xCoord;
@@ -23,6 +23,10 @@ let bulletAngle;
 let bullets = [];
 let yT = 0;
 let xT = 0;
+let rDifference;
+let lDifference;
+let uDifference;
+let dDifference;
 
 
 
@@ -31,7 +35,7 @@ let xT = 0;
 
 
 function setup() {
-  createCanvas(windowWidth,1000);
+  createCanvas(windowWidth,windowHeight);
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
@@ -191,7 +195,8 @@ function windowResized() {
   }
 
   keyControl() {
-  
+    rDifference = this.playerX + xT;
+    lDifference = xT - this.playerX;
     if (keyIsDown(DOWN_ARROW)) {
       if(this.yVelocity < 10){
         this.yVelocity += 1;
@@ -221,6 +226,9 @@ function windowResized() {
       fill(225);
       rect(this.playerX,this.north,40,40);
     }
+    if(mouseIsPressed){
+      console.log(lDifference);
+    }
   
     else{
       if(this.xVelocity < 0) {
@@ -246,6 +254,12 @@ function windowResized() {
     xT -= this.xVelocity;
     yT -= this.yVelocity;
 
+    if(rDifference > 500) {
+      xT -= 5;
+    }
+    if(lDifference > -500) {
+       xT += 5;
+     }
     
   }
 
@@ -350,6 +364,7 @@ function windowResized() {
  function mousePressed() {
   myB = new playerBullet(pBulletX,pBulletY);
   bullets.push(myB);
+  console.log(xT);
  }
 
  
