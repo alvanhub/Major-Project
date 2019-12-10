@@ -9,8 +9,8 @@ let grid;
 let rows = 90;
 let cols = 90;
 let gridW = 1200;
-let pBulletX = 100;
-let pBulletY = 100;
+let pBulletX = 500;
+let pBulletY = 500;
 let xCoord;
 let yCoord;
 let player;
@@ -31,7 +31,7 @@ let xT = 0;
 
 
 function setup() {
-  windowResized();
+  createCanvas(windowWidth,1000);
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
@@ -74,7 +74,7 @@ function displayGrid(grid, rows, cols) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
         fill(0);
-        stroke(0)
+        stroke(0);
       }
       else if(grid[y][x] === 1) {
         if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
@@ -115,8 +115,8 @@ function windowResized() {
 
  class Player {
    constructor() {
-    this.playerX = 100;
-    this.playerY = 100;
+    this.playerX = 500;
+    this.playerY = 500;
     this.yVelocity = 0;
     this.xVelocity = 0;
     this.north = this.playerY-200;
@@ -198,7 +198,6 @@ function windowResized() {
       }
       fill(225);
       rect(this.playerX,this.south,40,40);
-      yT -= 5;
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
@@ -207,7 +206,6 @@ function windowResized() {
       }
       fill(225);
       rect(this.east,this.playerY,40,40);
-      xT -= 5;
     }
     if (keyIsDown(LEFT_ARROW)) {
       if(this.xVelocity > -10){
@@ -215,7 +213,6 @@ function windowResized() {
         fill(225);
         rect(this.west,this.playerY,40,40);
       }
-      xT += 5;
     }
     if (keyIsDown(UP_ARROW)) {
       if(this.yVelocity > -10){
@@ -223,7 +220,6 @@ function windowResized() {
       }
       fill(225);
       rect(this.playerX,this.north,40,40);
-      yT += 5;
     }
   
     else{
@@ -247,6 +243,8 @@ function windowResized() {
     this.west += this.xVelocity;
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
+    xT -= this.xVelocity;
+    yT -= this.yVelocity;
 
     
   }
