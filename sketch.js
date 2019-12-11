@@ -196,70 +196,79 @@ function windowResized() {
 
   keyControl() {
     rDifference = this.playerX + xT;
-    lDifference = xT - this.playerX;
+    lDifference = xT + this.playerX;
     if (keyIsDown(DOWN_ARROW)) {
-      if(this.yVelocity < 10){
+      if(this.yVelocity < 15){
         this.yVelocity += 1;
       }
       fill(225);
       rect(this.playerX,this.south,40,40);
     }
+    else if(this.yVelocity > 0) {
+      this.yVelocity -= 1;
+    }
   
     if (keyIsDown(RIGHT_ARROW)) {
-      if(this.xVelocity < 10){
+      if(this.xVelocity < 15){
         this.xVelocity += 1;
       }
       fill(225);
       rect(this.east,this.playerY,40,40);
     }
+    else if(this.xVelocity > 0) {
+      this.xVelocity -= 1;
+    }
     if (keyIsDown(LEFT_ARROW)) {
-      if(this.xVelocity > -10){
+      if(this.xVelocity > -15){
         this.xVelocity -= 1;
         fill(225);
         rect(this.west,this.playerY,40,40);
       }
     }
+    else if(this.xVelocity < 0) {
+      this.xVelocity += 1;
+    }
     if (keyIsDown(UP_ARROW)) {
-      if(this.yVelocity > -10){
+      if(this.yVelocity > -15){
         this.yVelocity -= 1;
       }
       fill(225);
       rect(this.playerX,this.north,40,40);
     }
-    if(mouseIsPressed){
-      console.log(lDifference);
+    else if(this.yVelocity < 0) {
+      this.yVelocity += 1;
     }
-  
-    else{
-      if(this.xVelocity < 0) {
-        this.xVelocity += 0.5;
-      }if(this.xVelocity > 0) {
-        this.xVelocity -= 0.5;
-      }
-      if(this.yVelocity < 0) {
-        this.yVelocity += 0.5;
-      }if(this.yVelocity > 0) {
-        this.yVelocity -= 0.5;
-      }
-    }
+    
   
     this.playerY += this.yVelocity;
     this.south += this.yVelocity;
     this.north += this.yVelocity;
     this.playerX += this.xVelocity;
-    this.east += this.xVelocity;
-    this.west += this.xVelocity;
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
     xT -= this.xVelocity;
     yT -= this.yVelocity;
 
     if(rDifference > 500) {
-      xT -= 5;
+      xT -= 2;
     }
-    if(lDifference > -500) {
-       xT += 5;
+    if(lDifference < 500) {
+       xT += 2;
      }
+     if(xT%2 !== 0) {
+       xT += 1;
+     }
+     if(this.playerX%2 !== 0) {
+       this.playerX += 0.5;
+     }
+     if( this.east%2 !== 0) {
+       this.east += 0.5;
+     }
+     if(mouseIsPressed){
+      console.log(xT);
+      console.log(this.playerX);
+      console.log(lDifference);
+    }
     
   }
 
@@ -364,7 +373,7 @@ function windowResized() {
  function mousePressed() {
   myB = new playerBullet(pBulletX,pBulletY);
   bullets.push(myB);
-  console.log(xT);
+  
  }
 
  
