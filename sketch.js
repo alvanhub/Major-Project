@@ -197,6 +197,8 @@ function windowResized() {
   keyControl() {
     rDifference = this.playerX + xT;
     lDifference = xT + this.playerX;
+    uDifference = this.playerY + yT;
+    dDifference = yT + this.playerY;
     if (keyIsDown(DOWN_ARROW)) {
       if(this.yVelocity < 15){
         this.yVelocity += 1;
@@ -244,26 +246,27 @@ function windowResized() {
     this.south += this.yVelocity;
     this.north += this.yVelocity;
     this.playerX += this.xVelocity;
+    this.east += this.xVelocity;
+    this.west += this.xVelocity
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
     xT -= this.xVelocity;
     yT -= this.yVelocity;
 
-    if(rDifference > 500) {
-      xT -= 2;
-    }
-    if(lDifference < 500) {
-       xT += 2;
+     if(rDifference > 520) {
+       xT -= 25;
      }
-     if(xT%2 !== 0) {
-       xT += 1;
+     if(lDifference < 480) {
+        xT += 25;
+      }
+      if(uDifference > 520) {
+       yT -= 25;
      }
-     if(this.playerX%2 !== 0) {
-       this.playerX += 0.5;
-     }
-     if( this.east%2 !== 0) {
-       this.east += 0.5;
-     }
+     if(dDifference < 480) {
+        yT += 25;
+      }
+     
+
      if(mouseIsPressed){
       console.log(xT);
       console.log(this.playerX);
@@ -283,24 +286,28 @@ function windowResized() {
         pBulletY -= 200;
         this.north -= 200;
         this.south -= 200;
+        // yT += 200;
       }
       if (direction === "down"){
         this.playerY += 200;
         pBulletY += 200;
         this.north += 200;
         this.south += 200;
+        // yT -= 200;
       }
       if (direction === "left"){
         this.playerX -= 200;
         pBulletX -= 200;
         this.east -= 200;
         this.west -= 200;
+        // xT += 200;
       }
       if (direction === "right"){
         this.playerX += 200;
         pBulletX += 200;
         this.east += 200;
         this.west += 200;
+        // xT -= 200;
       }
       this.playerY += this.yVelocity;
     this.south += this.yVelocity;
@@ -310,6 +317,8 @@ function windowResized() {
     this.west += this.xVelocity;
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
+    // xT += this.xVelocity;
+    // yT += this.yVelocity;
     }
     gate = "closed";
 
