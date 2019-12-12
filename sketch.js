@@ -53,8 +53,8 @@ function draw() {
     bullets[i].update();
     bullets[i].create();
     bullets[i].gridUpdate();
-    if (bullets[i].x < 0 || bullets[i].x > width ||
-      bullets[i].y < 0 || bullets[i].y > height) {
+    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
+      bullets[i].y < 20 || bullets[i].y > 1750) {
         bullets.splice(i, 1);
     }
   }
@@ -266,12 +266,6 @@ function windowResized() {
         yT += 25;
       }
      
-
-     if(mouseIsPressed){
-      console.log(xT);
-      console.log(this.playerX);
-      console.log(lDifference);
-    }
     
   }
 
@@ -341,15 +335,14 @@ function windowResized() {
      this.speed = 25;
      this.oldX = this.x;
      this.oldY = this.y;
-
+     this.bulletAngle = atan2((mouseY - yT)- this.y, (mouseX - xT) - this.x);
    }
 
    update() {
-     this.x += this.speed*cos(playerAngle);
-     this.y += this.speed*sin(playerAngle);
+     this.x += this.speed*cos(this.bulletAngle);
+     this.y += this.speed*sin(this.bulletAngle);
     }
    create() {
-     bulletAngle = atan2(mouseY - this.y, mouseX - this.x);
       circle(this.x, this.y,15);
     }
 
@@ -362,6 +355,9 @@ function windowResized() {
 
       if (grid[yPos][xPos]===0){
         grid[yPos][xPos] = 2;
+      }
+      else if (this.y < 25 || this.y > 1750 || this.x < 0 || this.x > 1750) {
+        grid[yPos][xPos] = 0;
       }
       if(grid[oYPos][oXPos]=== 2) {
         grid[oYPos][oXPos] = 0;
