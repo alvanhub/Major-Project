@@ -58,7 +58,7 @@ function draw() {
     bullets[i].create();
     bullets[i].gridUpdate();
     if (bullets[i].x < 0 || bullets[i].x > 1750 ||
-      bullets[i].y < 65 || bullets[i].y > 1750) {
+      bullets[i].y < 65 || bullets[i].y > 1685) {
         bullets.splice(i, 1);
     }
     else if (bullets[i].hit === true) {
@@ -85,7 +85,7 @@ function displayGrid(grid, rows, cols) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
         fill(0);
-        stroke(0);
+        stroke(0,255,0);
       }
       else if(grid[y][x] === 1) {
         if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
@@ -367,7 +367,7 @@ function windowResized() {
         this.hit = true;
         grid[yPos][xPos] = 2;
       }
-      else if (this.y < 65 || this.y > 1750 || this.x < 0 || this.x > 1750) {
+      else if (this.y < 65 || this.y > 1685 || this.x < 0 || this.x > 1750) {
         grid[yPos][xPos] = 0;
       }
       else if (grid[yPos][xPos]===0){
@@ -382,11 +382,6 @@ function windowResized() {
     }
 
   }
-
-  function changePosition() {
-
-  }
-
  
 
  function mousePressed() {
