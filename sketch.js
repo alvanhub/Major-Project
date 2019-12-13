@@ -45,17 +45,24 @@ function draw() {
   background(255);
   translate(xT,yT);
   displayGrid(grid, rows, cols);
+  grid[40][40] = 3;
+  grid[41][40] = 3;
+  grid[40][41] = 3;
+  grid[41][41] = 3;
   // keyPressed();
   player.create();
-  player.keyControl();
+  player.movementControl();
   player.teleport();
   for (let i =0; i < bullets.length; i++) {
     bullets[i].update();
     bullets[i].create();
     bullets[i].gridUpdate();
     if (bullets[i].x < 0 || bullets[i].x > 1750 ||
-      bullets[i].y < 20 || bullets[i].y > 1750) {
+      bullets[i].y < 65 || bullets[i].y > 1750) {
         bullets.splice(i, 1);
+    }
+    else if (bullets[i].hit === true) {
+      bullets.splice(i, 1);
     }
   }
 
@@ -98,6 +105,10 @@ function displayGrid(grid, rows, cols) {
           fill(0,255,0);
           stroke(0,255,0);
       }
+      if(grid[y][x] === 3) {
+        fill(255);
+        stroke(255);
+    }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
   }
@@ -189,12 +200,10 @@ function windowResized() {
     // rotate(playerAngle);
    fill(225);
    rect(this.playerX,this.playerY,40,40);
-   
-   
 
   }
 
-  keyControl() {
+  movementControl() {
     rDifference = this.playerX + xT;
     lDifference = xT + this.playerX;
     uDifference = this.playerY + yT;
@@ -329,10 +338,11 @@ function windowResized() {
 
 
  class playerBullet {
-   constructor(x,y) {
+   constructor(x,y,hit) {
      this.x = x;
      this.y = y;
-     this.speed = 25;
+     this.hit = hit;
+     this.speed = 65;
      this.oldX = this.x;
      this.oldY = this.y;
      this.bulletAngle = atan2((mouseY - yT)- this.y, (mouseX - xT) - this.x);
@@ -353,11 +363,15 @@ function windowResized() {
       let oXPos = floor(this.oldX/cell);
       let oYPos = floor(this.oldY/cell);
 
-      if (grid[yPos][xPos]===0){
+      if(grid[yPos][xPos]===3){
+        this.hit = true;
         grid[yPos][xPos] = 2;
       }
-      else if (this.y < 25 || this.y > 1750 || this.x < 0 || this.x > 1750) {
+      else if (this.y < 65 || this.y > 1750 || this.x < 0 || this.x > 1750) {
         grid[yPos][xPos] = 0;
+      }
+      else if (grid[yPos][xPos]===0){
+        grid[yPos][xPos] = 2;
       }
       if(grid[oYPos][oXPos]=== 2) {
         grid[oYPos][oXPos] = 0;
@@ -376,7 +390,7 @@ function windowResized() {
  
 
  function mousePressed() {
-  myB = new playerBullet(pBulletX,pBulletY);
+  myB = new playerBullet(pBulletX,pBulletY,false);
   bullets.push(myB);
   
  }
@@ -397,9 +411,6 @@ function windowResized() {
   }
    if(keyCode === SHIFT){
     gate = "open"
-  }
-  if (key === 'a') {
-    xT += 1;
   }
  }
 
