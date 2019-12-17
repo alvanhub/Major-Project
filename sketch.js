@@ -27,11 +27,18 @@ let rDifference;
 let lDifference;
 let uDifference;
 let dDifference;
+let levelToL;
+let lines;
+let w;
+let tilesH;
 
 
 
 
-
+function preLoad() {
+  levelToL = "assets/level.txt";
+  lines = loadStrings(levelToL);
+}
 
 
 function setup() {
@@ -232,9 +239,9 @@ function windowResized() {
     if (keyIsDown(LEFT_ARROW)) {
       if(this.xVelocity > -15){
         this.xVelocity -= 1;
-        fill(225);
-        rect(this.west,this.playerY,40,40);
       }
+      fill(225);
+      rect(this.west,this.playerY,40,40);
     }
     else if(this.xVelocity < 0) {
       this.xVelocity += 1;
@@ -261,21 +268,20 @@ function windowResized() {
     pBulletY += this.yVelocity;
     xT -= this.xVelocity;
     yT -= this.yVelocity;
-
-     if(rDifference > 520) {
-       xT -= 25;
-     }
-     if(lDifference < 480) {
-        xT += 25;
-      }
-      if(uDifference > 520) {
-       yT -= 25;
-     }
-     if(dDifference < 480) {
-        yT += 25;
-      }
-     
     
+    if(rDifference > 520) {
+      xT -= 25;
+    }
+    if(lDifference < 480) {
+      xT += 25;
+    }
+    if(uDifference > 520) {
+      yT -= 25;
+    }
+    if(dDifference < 480) {
+      yT += 25;
+    }
+     
   }
 
   teleport() {
@@ -289,28 +295,24 @@ function windowResized() {
         pBulletY -= 200;
         this.north -= 200;
         this.south -= 200;
-        // yT += 200;
       }
       if (direction === "down"){
         this.playerY += 200;
         pBulletY += 200;
         this.north += 200;
         this.south += 200;
-        // yT -= 200;
       }
       if (direction === "left"){
         this.playerX -= 200;
         pBulletX -= 200;
         this.east -= 200;
         this.west -= 200;
-        // xT += 200;
       }
       if (direction === "right"){
         this.playerX += 200;
         pBulletX += 200;
         this.east += 200;
         this.west += 200;
-        // xT -= 200;
       }
       this.playerY += this.yVelocity;
     this.south += this.yVelocity;
@@ -320,8 +322,6 @@ function windowResized() {
     this.west += this.xVelocity;
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
-    // xT += this.xVelocity;
-    // yT += this.yVelocity;
     }
     gate = "closed";
 
