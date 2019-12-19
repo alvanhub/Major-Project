@@ -29,12 +29,13 @@ let uDifference;
 let dDifference;
 let levelToL;
 let lines;
-let w;
+let levelY;
+let levelX;
 
 
 
 
-function preLoad() {
+function preload() {
   levelToL = "assets/Levels/level.txt";
   lines = loadStrings(levelToL);
 }
@@ -42,6 +43,8 @@ function preLoad() {
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
+  levelY = lines.length;
+  levelX = lines[0].length;
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
@@ -51,6 +54,7 @@ function draw() {
   background(255);
   translate(xT,yT);
   displayGrid(grid, rows, cols);
+  inputGrid();
   grid[40][40] = 3;
   grid[41][40] = 3;
   grid[40][41] = 3;
@@ -136,7 +140,15 @@ function windowResized() {
   }
 }
 
-
+function inputGrid() {
+  for (let y = 0; y < levelY; y++) {
+    for (let x = 0; x < levelX; x++) {
+      if (lines[y][x] === 'a') {
+        grid[y][x] = 0;
+      }
+    }
+  }
+}
 
  
 
