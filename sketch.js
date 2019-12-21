@@ -9,6 +9,7 @@ let grid;
 let rows = 95;
 let cols = 95;
 let gridW = 1750;
+
 let pBulletX = 500;
 let pBulletY = 500;
 let xCoord;
@@ -21,12 +22,15 @@ let maxPos = 7;
 let playerAngle;
 let bulletAngle;
 let bullets = [];
+
 let yT = 0;
 let xT = 0;
+
 let rDifference;
 let lDifference;
 let uDifference;
 let dDifference;
+
 let levelToL;
 let lines;
 let levelY;
@@ -55,16 +59,7 @@ function draw() {
   translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
-  grid[40][40] = 3;
-  grid[41][40] = 3;
-  grid[40][41] = 3;
-  grid[41][41] = 3;
-  grid[42][41] = 3;
-  grid[42][40] = 3;
-  grid[41][42] = 3;
-  grid[40][42] = 3;
-  grid[42][42] = 3;
-  // keyPressed();
+
   for (let i =0; i < bullets.length; i++) {
     bullets[i].create();
     bullets[i].update();
@@ -79,6 +74,7 @@ function draw() {
   }
 
   player.create();
+  player.gridCheck();
   player.movementControl();
   player.teleport();
   
@@ -143,8 +139,11 @@ function windowResized() {
 function inputGrid() {
   for (let y = 0; y < levelY; y++) {
     for (let x = 0; x < levelX; x++) {
-      if (lines[y][x] === 'a') {
+      if (lines[y][x] === '#') {
         grid[y][x] = 0;
+      }
+      else if(lines[y][x] === 'w') {
+        grid[y][x] = 3;
       }
     }
   }
@@ -165,7 +164,16 @@ function inputGrid() {
    }
 
    create() {
+     playerAngle = atan2(mouseY - this.playerY, mouseX - this.playerX);
+     // rotate(playerAngle);
+     fill(225);
+     rect(this.playerX,this.playerY,40,40);
+    }
+    
+   gridCheck() {
      let cellSize = gridW/cols;
+     let crashX = false;
+     let crashY = false;
  
      xCoord = floor(this.playerX / cellSize);
      yCoord = floor(this.playerY / cellSize);
@@ -175,8 +183,8 @@ function inputGrid() {
       }
      if (grid[yCoord+1][xCoord] === 0) {
       grid[yCoord+1][xCoord] = 1;
-    }
-    if (grid[yCoord+2][xCoord] === 0) {
+      }
+     if (grid[yCoord+2][xCoord] === 0) {
       grid[yCoord+2][xCoord] = 1;
     }
     if (grid[yCoord+2][xCoord+1] === 0) {
@@ -220,15 +228,28 @@ function inputGrid() {
     }
     if (grid[yCoord][xCoord+2]=== 3) {
       this.xVelocity *= -1;
-      this.yVelocity *= -1;
+      crashX = true;
     }
-   
-    
-     playerAngle = atan2(mouseY - this.playerY, mouseX - this.playerX);
-    // rotate(playerAngle);
-   fill(225);
-   rect(this.playerX,this.playerY,40,40);
+    if (grid[yCoord-1][xCoord+1]=== 3) {
+      this.yVelocity *= -1;
+      crashY = true;
+    }
 
+    if (crashX === true){
+      if (this.xVelocity > 0) {
+        this.xVelocity += 5;
+      }else{
+        this.xVelocity -= 5;
+      }
+    }
+
+    if (crashY === true) {
+      if (this.yVelocity > 0) {
+        this.yVelocity += 5;
+      }else{
+        this.yVelocity -= 5;
+      }
+    }
   }
 
   movementControl() {
@@ -383,7 +404,7 @@ function inputGrid() {
       circle(this.x, this.y,15);
     }
 
-    gridUpdate() {
+  gridUpdate() {
       let cell = gridW/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
