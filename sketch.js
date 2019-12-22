@@ -96,8 +96,8 @@ function displayGrid(grid, rows, cols) {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
-        fill(0);
-        stroke(0);
+        noFill();
+        noStroke();
       }
       else if(grid[y][x] === 1) {
         if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
@@ -118,8 +118,8 @@ function displayGrid(grid, rows, cols) {
           stroke(0,255,0);
       }
       if(grid[y][x] === 3) {
-        fill(255);
-        stroke(255);
+        fill(0);
+        stroke(0);
     }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
@@ -230,7 +230,15 @@ function inputGrid() {
       this.xVelocity *= -1;
       crashX = true;
     }
+    if (grid[yCoord][xCoord-1]=== 3) {
+      this.xVelocity *= -1;
+      crashX = true;
+    }
     if (grid[yCoord-1][xCoord+1]=== 3) {
+      this.yVelocity *= -1;
+      crashY = true;
+    }
+    if (grid[yCoord+2][xCoord]=== 3) {
       this.yVelocity *= -1;
       crashY = true;
     }
@@ -371,6 +379,7 @@ function inputGrid() {
     }
 
     gate = "closed";
+
 
     if (gate === "closed") {
       if (playerPositions.length > maxPos) {
