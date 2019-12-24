@@ -97,7 +97,7 @@ function displayGrid(grid, rows, cols) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
         noFill();
-        noStroke();
+        stroke(0);
       }
       else if(grid[y][x] === 1) {
         if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
@@ -118,9 +118,9 @@ function displayGrid(grid, rows, cols) {
           stroke(0,255,0);
       }
       if(grid[y][x] === 3) {
-        fill(0);
-        stroke(0);
-    }
+        fill(255);
+        stroke(255);
+      }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
   }
@@ -161,6 +161,7 @@ function inputGrid() {
     this.south = this.playerY+200;
     this.west = this.playerX-200;
     this.east = this.playerX+200;
+    this.shiftD = 200;
    }
 
    create() {
@@ -335,6 +336,12 @@ function inputGrid() {
   }
 
   teleport() {
+    let cSize = gridW/cols;
+    let dCoord = floor(this.south/cSize);
+    let uCoord = floor(this.north/cSize);
+    let rCoord = floor(this.east/cSize);
+    let lCoord = floor(this.west/cSize);
+    
     playerPositions.push({x:this.playerX, y:this.playerY});
 
     if (gate === "open") {
@@ -343,28 +350,120 @@ function inputGrid() {
       }
 
       if (direction === "up"){
-        this.playerY -= 200;
-        pBulletY -= 200;
-        this.north -= 200;
-        this.south -= 200;
+        if(grid[uCoord][xCoord]===0) {
+          if(grid[uCoord+1][xCoord]===0 && grid[uCoord+2][xCoord]===0) {
+            if(grid[uCoord-1][xCoord]===0) {
+              this.playerY -= this.shiftD;
+              pBulletY -= this.shiftD;
+              this.north -= this.shiftD;
+              this.south -= this.shiftD;
+            }else{
+              this.playerY -= (this.shiftD-40);
+              pBulletY -= (this.shiftD-40);
+              this.north -= (this.shiftD-40);
+              this.south -= (this.shiftD-40);
+            }
+          }else{
+            this.playerY -= (this.shiftD+60);
+            pBulletY -= (this.shiftD+60);
+            this.north -= (this.shiftD+60);
+            this.south -= (this.shiftD+60);
+          }
+        }else if(grid[uCoord+1][xCoord]===0) {
+          this.playerY -= (this.shiftD-60);
+          pBulletY -= (this.shiftD-60);
+          this.north -= (this.shiftD-60);
+          this.south -= (this.shiftD-60);
+        }
       }
+      
+      
       if (direction === "down"){
-        this.playerY += 200;
-        pBulletY += 200;
-        this.north += 200;
-        this.south += 200;
+        if(grid[dCoord+1][xCoord]===0) {
+          if(grid[dCoord][xCoord]===0 && grid[dCoord-1][xCoord]===0) {
+            if(grid[dCoord+2][xCoord]===0) {
+              this.playerY += this.shiftD;
+              pBulletY += this.shiftD;
+              this.north += this.shiftD;
+              this.south += this.shiftD;
+            }else {
+              this.playerY += (this.shiftD - 60);
+              pBulletY += (this.shiftD - 60);
+              this.north += (this.shiftD - 60);
+              this.south += (this.shiftD - 60);
+            }
+          }else {
+            this.playerY += (this.shiftD + 60);
+            pBulletY += (this.shiftD + 60);
+            this.north += (this.shiftD + 60);
+            this.south += (this.shiftD + 60);
+          }
+        }
+        else if (grid[dCoord][xCoord]===0) {
+          this.playerY += (this.shiftD - 60);
+          pBulletY += (this.shiftD - 60);
+          this.north += (this.shiftD - 60);
+          this.south += (this.shiftD - 60);
+        }
       }
+
+
       if (direction === "left"){
-        this.playerX -= 200;
-        pBulletX -= 200;
-        this.east -= 200;
-        this.west -= 200;
+        if(grid[yCoord][lCoord]===0) {
+          if(grid[yCoord][lCoord+1]===0 && grid[yCoord][lCoord+2]===0) {
+            if(grid[yCoord][lCoord-1]===0) {
+              this.playerX -= this.shiftD;
+              pBulletX -= this.shiftD;
+              this.east -= this.shiftD;
+              this.west -= this.shiftD;
+            }else {
+              this.playerX -= (this.shiftD - 40);
+              pBulletX -= (this.shiftD - 40);
+              this.east -= (this.shiftD - 40);
+              this.west -= (this.shiftD - 40);
+            }
+          }else {
+            this.playerX -= (this.shiftD + 60);
+            pBulletX -= (this.shiftD + 60);
+            this.east -= (this.shiftD + 60);
+            this.west -= (this.shiftD + 60);
+          }
+        }
+        else if(grid[yCoord][lCoord+1]===0) {
+          this.playerX -= (this.shiftD - 60);
+          pBulletX -= (this.shiftD - 60);
+          this.east -= (this.shiftD - 60);
+          this.west -= (this.shiftD - 60);
+        }
       }
+
+
       if (direction === "right"){
-        this.playerX += 200;
-        pBulletX += 200;
-        this.east += 200;
-        this.west += 200;
+        if(grid[yCoord][rCoord+1]===0){
+          if(grid[yCoord][rCoord]===0 && grid[yCoord][rCoord-1]===0) {
+            if(grid[yCoord][rCoord+2]===0) {
+              this.playerX += this.shiftD;
+              pBulletX += this.shiftD;
+              this.east += this.shiftD;
+              this.west += this.shiftD;
+            }else {
+              this.playerX += (this.shiftD - 40);
+              pBulletX += (this.shiftD - 40);
+              this.east += (this.shiftD - 40);
+              this.west += (this.shiftD - 40);
+            }
+          }else{
+            this.playerX += (this.shiftD + 60);
+            pBulletX += (this.shiftD + 60);
+            this.east += (this.shiftD + 60);
+            this.west += (this.shiftD + 60);
+          }
+        }else if (grid[yCoord][rCoord]===0) {
+          this.playerX += (this.shiftD - 60);
+          pBulletX += (this.shiftD - 60);
+          this.east += (this.shiftD - 60);
+          this.west += (this.shiftD - 60);
+        }
       }
 
     this.playerY += this.yVelocity;
