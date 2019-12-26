@@ -61,7 +61,7 @@ function setup() {
 
 function draw() {
   background(levelBackground);
-  translate(xT,yT);
+  translate(xT,yT)
   displayGrid(grid, rows, cols);
   inputGrid();
 
@@ -173,12 +173,13 @@ function inputGrid() {
    }
 
    create() {
-     
-     playerAngle = atan2(mouseY - this.playerY, mouseX - this.playerX);
-    //  rotate(playerAngle);
+     push();
+     translate(this.playerX,this.playerY);
+     playerAngle = atan2((mouseY - yT) - this.playerY , (mouseX - xT) - this.playerX);
+     rotate(playerAngle);
      fill(225);
-     rect(this.playerX,this.playerY,40,40);
-     
+     rect(0,0,40,40);
+     pop();
     }
     
    gridCheck() {
@@ -186,7 +187,7 @@ function inputGrid() {
      let crashX = false;
      let crashY = false;
  
-     xCoord = floor(this.playerX / cellSize);
+     xCoord = floor(this.playerX/ cellSize);
      yCoord = floor(this.playerY / cellSize);
      
      if (grid[yCoord][xCoord] === 0) {
@@ -330,18 +331,18 @@ function inputGrid() {
     xT -= this.xVelocity;
     yT -= this.yVelocity;
     
-    if(rDifference > 520) {
-      xT -= 25;
-    }
-    if(lDifference < 480) {
-      xT += 25;
-    }
-    if(uDifference > 520) {
-      yT -= 25;
-    }
-    if(dDifference < 480) {
-      yT += 25;
-    }
+     if(rDifference > 520) {
+       xT -= 25;
+     }
+     if(lDifference < 480) {
+       xT += 25;
+     }
+     if(uDifference > 520) {
+       yT -= 25;
+     }
+     if(dDifference < 480) {
+       yT += 25;
+     }
      
   }
 
