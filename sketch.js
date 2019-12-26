@@ -35,6 +35,9 @@ let levelToL;
 let lines;
 let levelY;
 let levelX;
+let levelBackground;
+
+let enemy1;
 
 
 
@@ -42,6 +45,7 @@ let levelX;
 function preload() {
   levelToL = "assets/Levels/level.txt";
   lines = loadStrings(levelToL);
+  levelBackground = loadImage("assets/BlackholeBackground.jpg_large")
 }
 
 
@@ -52,10 +56,11 @@ function setup() {
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
+  enemy1 = new dashingEnemy();
 }
 
 function draw() {
-  background(255);
+  background(levelBackground);
   translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
@@ -77,6 +82,9 @@ function draw() {
   player.gridCheck();
   player.movementControl();
   player.teleport();
+
+  // enemy1.create();
+  // enemy1.directionalInput();
   
 }
 
@@ -97,7 +105,7 @@ function displayGrid(grid, rows, cols) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 0) {
         noFill();
-        stroke(0);
+        stroke(255);
       }
       else if(grid[y][x] === 1) {
         if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
@@ -165,10 +173,12 @@ function inputGrid() {
    }
 
    create() {
+     
      playerAngle = atan2(mouseY - this.playerY, mouseX - this.playerX);
-     // rotate(playerAngle);
+    //  rotate(playerAngle);
      fill(225);
      rect(this.playerX,this.playerY,40,40);
+     
     }
     
    gridCheck() {
@@ -564,15 +574,37 @@ function inputGrid() {
   }
 }
 
+
 class dashingEnemy {
   constructor() {
     this.x = 600;
-    this.y = 600;
+    this.y = 800;
     this.bounce = 20;
   }
 
   create() {
-    
+    rect(this.x, this.y, 25, 25);
+    fill(0);
+    rotate(25, this.x);
+  }
+
+  directionalInput() {
+    let celSize = gridW/cols;
+    let eY = floor(this.y/celSize);
+    let eX = floor(this.x/celSize);
+
+
+    if(eY < yCoord) {
+      this.y += 2;
+    }else {
+      this.y -= 2;
+    }
+
+    if(eX < xCoord) {
+      this.x += 2;
+    }else {
+      this.x -= 2;
+    }
   }
 }
 
