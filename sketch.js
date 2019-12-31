@@ -38,6 +38,9 @@ let levelX;
 let levelBackground;
 
 let enemy1;
+let enemy11;
+let pHit = [false, "none"];
+
 
 
 
@@ -56,7 +59,8 @@ function setup() {
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
-  enemy1 = new dashingEnemy();
+  enemy1 = new dashingEnemy(500,900);
+  enemy11 = new dashingEnemy(500,1000);
 }
 
 function draw() {
@@ -83,8 +87,12 @@ function draw() {
   player.movementControl();
   player.teleport();
 
-  // enemy1.create();
-  // enemy1.directionalInput();
+  enemy1.create();
+  enemy1.directionalInput();
+  enemy1.gridCheck();
+  enemy11.create();
+  enemy11.directionalInput();
+  enemy11.gridCheck();
   
 }
 
@@ -107,25 +115,19 @@ function displayGrid(grid, rows, cols) {
         noFill();
         stroke(255);
       }
-      else if(grid[y][x] === 1) {
-        if (y === yCoord && x === xCoord || y === yCoord+1 && x === xCoord || y === yCoord+2 && x === xCoord 
-          || y === yCoord && x === xCoord+1 || y === yCoord && x === xCoord-1 || y === yCoord+2 && x === xCoord+1
-          || y === yCoord+1 && x === xCoord+1 || y === yCoord+1 && x === xCoord-1 || y === yCoord && x === xCoord+2
-          || y === yCoord+1 && x === xCoord+2 || y === yCoord-1 && x === xCoord+1 || y === yCoord-1 && x === xCoord+2
-          || y === yCoord+2 && x === xCoord+2 || y === yCoord-1 && x === xCoord || y === yCoord-1 && x === xCoord-1 
-          || y === yCoord+2 && x === xCoord-1){
+      if(grid[y][x] === 1) {
           fill(51,171,249);
           stroke(51,171,249);
         }
-        else{
-          grid[y][x] = 0;
-        }
-      }
       if(grid[y][x] === 2) {
           fill(0,255,0);
           stroke(0,255,0);
       }
       if(grid[y][x] === 3) {
+        fill(255);
+        stroke(255);
+      }
+      if(grid[y][x] === 4) {
         fill(255);
         stroke(255);
       }
@@ -273,6 +275,7 @@ function inputGrid() {
   }
 
   movementControl() {
+
     rDifference = this.playerX + xT;
     lDifference = xT + this.playerX;
     uDifference = this.playerY + yT;
@@ -282,8 +285,10 @@ function inputGrid() {
       if(this.yVelocity < 15){
         this.yVelocity += 1;
       }
+      push();
       fill(225);
       rect(this.playerX,this.south,40,40);
+      pop();
     }
     else if(this.yVelocity > 0) {
       this.yVelocity -= 1;
@@ -293,8 +298,10 @@ function inputGrid() {
       if(this.xVelocity < 15){
         this.xVelocity += 1;
       }
+      push();
       fill(225);
       rect(this.east,this.playerY,40,40);
+      pop();
     }
     else if(this.xVelocity > 0) {
       this.xVelocity -= 1;
@@ -303,8 +310,10 @@ function inputGrid() {
       if(this.xVelocity > -15){
         this.xVelocity -= 1;
       }
+      push();
       fill(225);
       rect(this.west,this.playerY,40,40);
+      pop();
     }
     else if(this.xVelocity < 0) {
       this.xVelocity += 1;
@@ -313,8 +322,10 @@ function inputGrid() {
       if(this.yVelocity > -15){
         this.yVelocity -= 1;
       }
+      push();
       fill(225);
       rect(this.playerX,this.north,40,40);
+      pop();
     }
     else if(this.yVelocity < 0) {
       this.yVelocity += 1;
@@ -527,8 +538,8 @@ function inputGrid() {
       let cell = gridW/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
-      let oXPos = floor(this.oldX/cell);
-      let oYPos = floor(this.oldY/cell);
+      // let oXPos = floor(this.oldX/cell);
+      // let oYPos = floor(this.oldY/cell);
 
       if(grid[yPos][xPos]===3){
         this.hit = true;
@@ -540,12 +551,14 @@ function inputGrid() {
       else if (grid[yPos][xPos]===0){
         grid[yPos][xPos] = 2;
       }
-      if(grid[oYPos][oXPos]=== 2) {
-        grid[oYPos][oXPos] = 0;
-      }
 
-      this.oldX = this.x;
-      this.oldY = this.y;
+      
+      // if(grid[oYPos][oXPos]=== 2) {
+      //   grid[oYPos][oXPos] = 0;
+      // }
+
+      // this.oldX = this.x;
+      // this.oldY = this.y;
     }
 
   }
@@ -577,35 +590,165 @@ function inputGrid() {
 
 
 class dashingEnemy {
-  constructor() {
-    this.x = 600;
-    this.y = 800;
+  constructor(x,y) {
+    this.x = x;
+    this.y = y;
+    this.speed = 5;
     this.bounce = 20;
+    this.move = true;
+    this.wait = 1000;
+    this.first = 0;
+    this.isT = true;
+    this.targetAngle;
+    this.xV;
+    this.yV;
+    this.bX;
+    this.bY;
   }
 
   create() {
+    fill(220);
+    stroke(0);
     rect(this.x, this.y, 25, 25);
-    fill(0);
-    rotate(25, this.x);
   }
 
   directionalInput() {
+    this.move = true;
+    let celSize = gridW/cols;
+    let eY = floor(this.y/celSize);
+    let eX = floor(this.x/celSize);
+    let xDifferenceF = xCoord - eX;
+    let yDifferenceF = yCoord - eY;
+    let xDifferenceB = eX - xCoord;
+    let yDifferenceB = eY - yCoord;
+    this.targetAngle = atan2(pBulletY - this.y, pBulletX - this.x);
+    this.xV = this.speed*cos(this.targetAngle);
+    this.yV = this.speed*sin(this.targetAngle);
+    this.bX = this.bounce*cos(this.targetAngle);
+    this.bY = this.bounce*sin(this.targetAngle);
+
+
+    if ((xDifferenceF <= 5 && xDifferenceF >= 0) || (xDifferenceB <= 5 && xDifferenceB >= 0)) {
+      if((yDifferenceF <= 5 && yDifferenceF >= 0) || (yDifferenceB <= 5 && yDifferenceB >= 0)) {
+        this.move = false;
+      }
+    }
+
+    if (this.move === true) {
+      this.isT = true;
+      this.x += this.xV;
+      this.y += this.yV;
+    }else{
+      if (this.isT) {
+        this.x += this.bX;
+        this.y += this.bY;
+      }else {
+        this.x += 0;
+        this.y += 0;
+      }
+
+      if(millis() > this.first + this.wait) {
+        this.isT = !this.isT;
+        this.first = millis();
+      }
+    }
+    
+
+    if (grid[eY-1][eX] === 3) {
+      if(yCoord > eY) {
+        this.speed += 7;
+      }else{
+        this.speed -= 7;
+      }
+    }
+    if (grid[eY+2][eX] === 3) {
+      if (yCoord < eY) {
+        this.speed += 7;
+      }else{
+        this.speed -= 7;
+      }
+    }
+    if (grid[eY][eX] === 3) {
+      if (grid[eY-1][eX]===3 || grid[eY+2][eX]===3) {
+        this.speed += 7;
+      }else {
+        this.speed -= 7;
+      }
+    }
+    if (grid[eY][eX+2] === 3) {
+      if(xCoord < eX) {
+        this.speed += 7;
+      }else{
+        this.speed -= 7;
+      }
+    }
+
+    if (grid[eY][eX-1] === 3) {
+      if(xCoord > eX) {
+        this.speed += 7;
+      }else{
+        this.speed -= 7;
+      }
+    }
+    
+
+    if (this.speed < 5) {
+      this.speed += 1;
+    }else {
+      this.speed -= 1;
+    }
+
+  }
+  
+  gridCheck() {
     let celSize = gridW/cols;
     let eY = floor(this.y/celSize);
     let eX = floor(this.x/celSize);
 
 
-    if(eY < yCoord) {
-      this.y += 2;
-    }else {
-      this.y -= 2;
+    if (grid[eY][eX] === 0) {
+      grid[eY][eX] = 4;
+    }
+    if (grid[eY-1][eX] === 0) {
+      grid[eY-1][eX] = 4;
+    }
+    if (grid[eY-1][eX+1] === 0) {
+      grid[eY-1][eX+1] = 4;
+    }
+    if (grid[eY+1][eX] === 0) {
+      grid[eY+1][eX] = 4;
+    }
+    if (grid[eY+2][eX] === 0) {
+      grid[eY+2][eX] = 4;
+    }
+    if (grid[eY+2][eX+1] === 0) {
+      grid[eY+2][eX+1] = 4;
+    }
+    if (grid[eY][eX+1] === 0) {
+      grid[eY][eX+1] = 4;
+    }
+    if (grid[eY+1][eX+1] === 0) {
+      grid[eY+1][eX+1] = 4;
+    }
+    if (grid[eY][eX+2] === 0) {
+      grid[eY][eX+2] = 4;
+    }
+    if (grid[eY+1][eX+2] === 0) {
+      grid[eY+1][eX+2] = 4;
+    }
+    if (grid[eY][eX-1] === 0) {
+      grid[eY][eX-1] = 4;
+    }
+    if (grid[eY+1][eX-1] === 0) {
+      grid[eY+1][eX-1] = 4;
     }
 
-    if(eX < xCoord) {
-      this.x += 2;
-    }else {
-      this.x -= 2;
+    if (grid[eY][eX] === 1) {
+      pHit[0] = true;
     }
+    
   }
+
+  
 }
 
