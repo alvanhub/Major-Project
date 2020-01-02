@@ -39,7 +39,10 @@ let levelBackground;
 
 let enemy1;
 let enemy11;
-let pHit = [false, "none"];
+let pHit = false;
+let eHitY;
+let eHitX;
+let enemies = [];
 
 
 
@@ -69,6 +72,12 @@ function draw() {
   displayGrid(grid, rows, cols);
   inputGrid();
 
+  
+  player.create();
+  player.gridCheck();
+  player.movementControl();
+  player.teleport();
+  
   for (let i =0; i < bullets.length; i++) {
     bullets[i].create();
     bullets[i].update();
@@ -81,12 +90,6 @@ function draw() {
       bullets.splice(i, 1);
     }
   }
-
-  player.create();
-  player.gridCheck();
-  player.movementControl();
-  player.teleport();
-
   enemy1.create();
   enemy1.directionalInput();
   enemy1.gridCheck();
@@ -172,6 +175,7 @@ function inputGrid() {
     this.west = this.playerX-200;
     this.east = this.playerX+200;
     this.shiftD = 200;
+    this.brakes = 1;
    }
 
    create() {
@@ -291,7 +295,7 @@ function inputGrid() {
       pop();
     }
     else if(this.yVelocity > 0) {
-      this.yVelocity -= 1;
+      this.yVelocity -= this.brakes;
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
@@ -304,7 +308,7 @@ function inputGrid() {
       pop();
     }
     else if(this.xVelocity > 0) {
-      this.xVelocity -= 1;
+      this.xVelocity -= this.brakes;
     }
     if (keyIsDown(LEFT_ARROW)) {
       if(this.xVelocity > -15){
@@ -316,7 +320,7 @@ function inputGrid() {
       pop();
     }
     else if(this.xVelocity < 0) {
-      this.xVelocity += 1;
+      this.xVelocity += this.brakes;
     }
     if (keyIsDown(UP_ARROW)) {
       if(this.yVelocity > -15){
@@ -328,8 +332,15 @@ function inputGrid() {
       pop();
     }
     else if(this.yVelocity < 0) {
-      this.yVelocity += 1;
+      this.yVelocity += this.brakes;
     }
+
+    if (pHit === true) {
+      this.yVelocity += floor(eHitY/9);
+      this.xVelocity += floor(eHitX/9);
+      pHit = false;
+    }
+
   
     this.playerY += this.yVelocity;
     this.south += this.yVelocity;
@@ -541,7 +552,12 @@ function inputGrid() {
       // let oXPos = floor(this.oldX/cell);
       // let oYPos = floor(this.oldY/cell);
 
+
       if(grid[yPos][xPos]===3){
+        this.hit = true;
+        grid[yPos][xPos] = 2;
+      }
+      if(grid[yPos][xPos]===4){
         this.hit = true;
         grid[yPos][xPos] = 2;
       }
@@ -590,15 +606,16 @@ function inputGrid() {
 
 
 class dashingEnemy {
-  constructor(x,y) {
+  constructor(x,y,eHit) {
     this.x = x;
     this.y = y;
     this.speed = 5;
     this.bounce = 20;
     this.move = true;
-    this.wait = 1000;
+    this.wait = 700;
     this.first = 0;
     this.isT = true;
+    this.eHit = eHit;
     this.targetAngle;
     this.xV;
     this.yV;
@@ -617,15 +634,25 @@ class dashingEnemy {
     let celSize = gridW/cols;
     let eY = floor(this.y/celSize);
     let eX = floor(this.x/celSize);
+
     let xDifferenceF = xCoord - eX;
     let yDifferenceF = yCoord - eY;
     let xDifferenceB = eX - xCoord;
     let yDifferenceB = eY - yCoord;
+    
+    let dY = abs(pBulletY - this.y);
+    let dX = abs(pBulletX - this.x);
+
     this.targetAngle = atan2(pBulletY - this.y, pBulletX - this.x);
-    this.xV = this.speed*cos(this.targetAngle);
-    this.yV = this.speed*sin(this.targetAngle);
-    this.bX = this.bounce*cos(this.targetAngle);
-    this.bY = this.bounce*sin(this.targetAngle);
+
+    this.xV = floor(this.speed*cos(this.targetAngle));
+    this.yV = floor(this.speed*sin(this.targetAngle));
+    this.bX = floor(this.bounce*cos(this.targetAngle));
+    this.bY = floor(this.bounce*sin(this.targetAngle));
+
+
+    eHitX = this.bX;
+    eHitY = this.bY;
 
 
     if ((xDifferenceF <= 5 && xDifferenceF >= 0) || (xDifferenceB <= 5 && xDifferenceB >= 0)) {
@@ -640,8 +667,13 @@ class dashingEnemy {
       this.y += this.yV;
     }else{
       if (this.isT) {
-        this.x += this.bX;
-        this.y += this.bY;
+        if (dX < 30 && dY < 30) {
+          this.x += 0;
+          this.y += 0;
+        }else{
+          this.x += this.bX;
+          this.y += this.bY;
+        }
       }else {
         this.x += 0;
         this.y += 0;
@@ -691,11 +723,17 @@ class dashingEnemy {
       }
     }
     
+    if (grid[eY][eX-1] === 2 || grid[eY][eX] === 2 || grid[eY-1][eX] === 2 || grid[eY-1][eX+1] === 2 || grid[eY+1][eX] === 2 || 
+      grid[eY+2][eX] === 2 || grid[eY+2][eX+1] === 2 || grid[eY][eX+1] === 2 || grid[eY+1][eX+1] === 2 || grid[eY][eX+2] === 2 ||
+      grid[eY+1][eX+2] === 2 || grid[eY+1][eX-1] === 2) {
+      this.speed -= 13;
+    }
+
 
     if (this.speed < 5) {
-      this.speed += 1;
+      this.speed += 2;
     }else {
-      this.speed -= 1;
+      this.speed -= 2;
     }
 
   }
@@ -704,7 +742,6 @@ class dashingEnemy {
     let celSize = gridW/cols;
     let eY = floor(this.y/celSize);
     let eX = floor(this.x/celSize);
-
 
     if (grid[eY][eX] === 0) {
       grid[eY][eX] = 4;
@@ -742,9 +779,32 @@ class dashingEnemy {
     if (grid[eY+1][eX-1] === 0) {
       grid[eY+1][eX-1] = 4;
     }
-
     if (grid[eY][eX] === 1) {
-      pHit[0] = true;
+      pHit = true;
+    }
+    if (grid[eY][eX+2] === 0) {
+      pHit = true;
+    }
+    if (grid[eY+1][eX+2] === 0) {
+      pHit = true;
+    }
+    if (grid[eY][eX-1] === 0) {
+      pHit = true;
+    }
+    if (grid[eY+1][eX-1] === 0) {
+      pHit = true;
+    }
+    if (grid[eY-1][eX] === 0) {
+      pHit = true;
+    }
+    if (grid[eY-1][eX+1] === 0) {
+      pHit = true;
+    }
+    if (grid[eY+2][eX] === 0) {
+      pHit = true;
+    }
+    if (grid[eY+2][eX+1] === 0) {
+      pHit = true;
     }
     
   }
