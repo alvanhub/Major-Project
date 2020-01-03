@@ -31,71 +31,57 @@ let lDifference;
 let uDifference;
 let dDifference;
 
-let levelToL;
-let lines;
+let PracticeModeTXT;
+let PModeLines;
 let levelY;
 let levelX;
 let levelBackground;
 
-let enemy1;
-let enemy11;
 let pHit = false;
 let eHitY;
 let eHitX;
 let enemies = [];
+
+let gameStatus = "menu";
 
 
 
 
 
 function preload() {
-  levelToL = "assets/Levels/level.txt";
-  lines = loadStrings(levelToL);
+  PracticeModeTXT = "assets/Levels/level.txt";
+  PModeLines = loadStrings(PracticeModeTXT);
   levelBackground = loadImage("assets/BlackholeBackground.jpg_large")
 }
 
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
-  levelY = lines.length;
-  levelX = lines[0].length;
+  levelY = PModeLines.length;
+  levelX = PModeLines[0].length;
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   player = new Player();
-  enemy1 = new dashingEnemy(500,900);
-  enemy11 = new dashingEnemy(500,1000);
+
 }
 
 function draw() {
-  background(levelBackground);
-  translate(xT,yT)
-  displayGrid(grid, rows, cols);
-  inputGrid();
-
-  
-  player.create();
-  player.gridCheck();
-  player.movementControl();
-  player.teleport();
-  
-  for (let i =0; i < bullets.length; i++) {
-    bullets[i].create();
-    bullets[i].update();
-    bullets[i].gridUpdate();
-    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
-      bullets[i].y < 55 || bullets[i].y > 1695) {
-        bullets.splice(i, 1);
-    }
-    else if (bullets[i].hit === true) {
-      bullets.splice(i, 1);
-    }
+  if(gameStatus === 'menu') {
+    background(0);
+    playButton();
+    optionsButton();
+    mouseCheck();
   }
-  enemy1.create();
-  enemy1.directionalInput();
-  enemy1.gridCheck();
-  enemy11.create();
-  enemy11.directionalInput();
-  enemy11.gridCheck();
+  else if (gameStatus === 'gamemodes') {
+    background(0);
+    practiceButton();
+    survivalButton();
+    mouseCheck();
+  }
+  else if(gameStatus === 'practice') {
+    practiceMode();
+  }
+
   
 }
 
@@ -152,10 +138,10 @@ function windowResized() {
 function inputGrid() {
   for (let y = 0; y < levelY; y++) {
     for (let x = 0; x < levelX; x++) {
-      if (lines[y][x] === '#') {
+      if (PModeLines[y][x] === '#') {
         grid[y][x] = 0;
       }
-      else if(lines[y][x] === 'w') {
+      else if(PModeLines[y][x] === 'w') {
         grid[y][x] = 3;
       }
     }
@@ -336,10 +322,15 @@ function inputGrid() {
     }
 
     if (pHit === true) {
-      this.yVelocity += floor(eHitY/9);
-      this.xVelocity += floor(eHitX/9);
+      if((this.yVelocity <= 15 && this.yVelocity >= 0) || (this.yVelocity >= -15 && this.yVelocity <= 0) ){
+        this.yVelocity += floor(eHitY/2);
+      }
+      if((this.xVelocity <= 15 && this.xVelocity >= 0) || (this.xVelocity >= -15 && this.xVelocity <= 0) ){
+        this.xVelocity += floor(eHitX/2);
+      }
       pHit = false;
     }
+
 
   
     this.playerY += this.yVelocity;
@@ -581,8 +572,10 @@ function inputGrid() {
  
 
  function mousePressed() {
-  myB = new playerBullet(pBulletX,pBulletY,false);
-  bullets.push(myB);
+   if(gameStatus === 'practice') {
+    myB = new playerBullet(pBulletX,pBulletY,false);
+    bullets.push(myB);
+   }
  }
 
  
@@ -602,20 +595,24 @@ function inputGrid() {
    if(keyCode === SHIFT){
     gate = "open"
   }
+  if(key === 'a'){
+    let enemy1 = new dashingEnemy(500,900,5);
+    enemies.push(enemy1);
+  }
 }
 
 
 class dashingEnemy {
-  constructor(x,y,eHit) {
+  constructor(x,y,health) {
     this.x = x;
     this.y = y;
+    this.health = health;
     this.speed = 5;
     this.bounce = 20;
     this.move = true;
-    this.wait = 700;
+    this.wait = 600;
     this.first = 0;
     this.isT = true;
-    this.eHit = eHit;
     this.targetAngle;
     this.xV;
     this.yV;
@@ -667,7 +664,7 @@ class dashingEnemy {
       this.y += this.yV;
     }else{
       if (this.isT) {
-        if (dX < 30 && dY < 30) {
+        if (dX < 27 && dY < 27) {
           this.x += 0;
           this.y += 0;
         }else{
@@ -727,13 +724,19 @@ class dashingEnemy {
       grid[eY+2][eX] === 2 || grid[eY+2][eX+1] === 2 || grid[eY][eX+1] === 2 || grid[eY+1][eX+1] === 2 || grid[eY][eX+2] === 2 ||
       grid[eY+1][eX+2] === 2 || grid[eY+1][eX-1] === 2) {
       this.speed -= 13;
+      this.health--;
     }
 
+   
 
     if (this.speed < 5) {
       this.speed += 2;
     }else {
       this.speed -= 2;
+    }
+
+    if(this.speed <= -20) {
+      this.speed = 0;
     }
 
   }
@@ -782,33 +785,121 @@ class dashingEnemy {
     if (grid[eY][eX] === 1) {
       pHit = true;
     }
-    if (grid[eY][eX+2] === 0) {
+    if (grid[eY][eX+2] === 1) {
       pHit = true;
     }
-    if (grid[eY+1][eX+2] === 0) {
+    if (grid[eY+1][eX+2] === 1) {
       pHit = true;
     }
-    if (grid[eY][eX-1] === 0) {
+    if (grid[eY][eX-1] === 1) {
       pHit = true;
     }
-    if (grid[eY+1][eX-1] === 0) {
+    if (grid[eY+1][eX-1] === 1) {
       pHit = true;
     }
-    if (grid[eY-1][eX] === 0) {
+    if (grid[eY-1][eX] === 1) {
       pHit = true;
     }
-    if (grid[eY-1][eX+1] === 0) {
+    if (grid[eY-1][eX+1] === 1) {
       pHit = true;
     }
-    if (grid[eY+2][eX] === 0) {
+    if (grid[eY+2][eX] === 1) {
       pHit = true;
     }
-    if (grid[eY+2][eX+1] === 0) {
+    if (grid[eY+2][eX+1] === 1) {
       pHit = true;
     }
+
     
   }
-
-  
 }
 
+function practiceMode() {
+  background(levelBackground);
+  translate(xT,yT)
+  displayGrid(grid, rows, cols);
+  inputGrid();
+
+  
+  player.create();
+  player.gridCheck();
+  player.movementControl();
+  player.teleport();
+  
+  for (let i =0; i < bullets.length; i++) {
+    bullets[i].create();
+    bullets[i].update();
+    bullets[i].gridUpdate();
+    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
+      bullets[i].y < 55 || bullets[i].y > 1695) {
+        bullets.splice(i, 1);
+    }
+    else if (bullets[i].hit === true) {
+      bullets.splice(i, 1);
+    }
+  }
+  
+  for (let j = 0; j < enemies.length; j++) {
+    enemies[j].create();
+    enemies[j].directionalInput();
+    enemies[j].gridCheck();
+    if(enemies[j].health <= 0) {
+      enemies.splice(j,1);
+    }
+  }
+}
+
+function playButton() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2 - 300, height/2 - 100, 400, 150);
+  textAlign(CENTER,CENTER);
+  textSize(50);
+  fill(0);
+  text("Play",width/2-300,height/2-100);
+}
+
+function optionsButton() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2 + 300, height/2 - 100, 400, 150);
+  textAlign(CENTER,CENTER);
+  textSize(50);
+  fill(0);
+  text("Options",width/2+300,height/2-100);
+}
+
+function practiceButton() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2 + 300, height/2 - 100, 400, 150);
+  textAlign(CENTER,CENTER);
+  textSize(50);
+  fill(0);
+  text("practice",width/2+300,height/2-100);
+}
+
+function survivalButton() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2 - 300, height/2 - 100, 400, 150);
+  textAlign(CENTER,CENTER);
+  textSize(50);
+  fill(0);
+  text("Survival",width/2-300,height/2-100);
+}
+
+function mouseCheck() {
+  if (mouseIsPressed) {
+    if (gameStatus === 'menu') {
+      if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
+        gameStatus = 'gamemodes';
+      }
+    }
+    else if (gameStatus === 'gamemodes') {
+      if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
+        gameStatus = 'practice';
+      }
+    }
+  }
+}
