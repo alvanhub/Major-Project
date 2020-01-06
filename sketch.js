@@ -44,6 +44,8 @@ let enemies = [];
 
 let gameStatus = "menu";
 
+let reload = false;
+
 
 
 
@@ -166,6 +168,7 @@ function inputGrid() {
     this.barX = windowWidth/2 - 400;
     this.barY = windowHeight - 30;
     this.shiftCoolDown = 700;
+    this.bulletCoolDown = 700;
    }
 
    create() {
@@ -549,7 +552,7 @@ function inputGrid() {
 
     push();
     rectMode(CORNER);
-    fill(0,0,0,255);
+    noFill();
     stroke(0);
     strokeWeight(5);
     rect(this.barX,this.barY,800,30);
@@ -617,9 +620,41 @@ function inputGrid() {
     rect(this.barX+640,this.barY-20,100,15);
     pop();
 
+    push();
+    rectMode(CORNER);
+    fill(255,255,0);
+    rect(this.barX+40,this.barY-40,this.bulletCoolDown,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+40,this.barY-40,700,15);
+    pop();
+
     if(gameStatus === 'practice') {
       if(this.health < 800) {
         this.health += 10;
+      }
+      if(this.bulletCoolDown <= 0) {
+        reload = true;
+      }
+
+      if (reload === false) {
+        if(this.bulletCoolDown < 700) {
+          this.bulletCoolDown++;
+        }
+        if(mouseIsPressed) {
+          this.bulletCoolDown -=10;
+        }
+      }else if(reload === true) {
+        if (this.bulletCoolDown < 695) {
+          this.bulletCoolDown += 5;
+        }else {
+          reload = false;
+        }
       }
     }
   }
@@ -685,10 +720,12 @@ function inputGrid() {
  
 
  function mousePressed() {
-   if(gameStatus === 'practice') {
-    myB = new playerBullet(pBulletX,pBulletY,false);
-    bullets.push(myB);
-   }
+   if(reload === false) {
+    if(gameStatus === 'practice') {
+      myB = new playerBullet(pBulletX,pBulletY,false);
+      bullets.push(myB);
+    }
+  }
  }
 
  
@@ -962,6 +999,10 @@ function practiceMode() {
       enemies.splice(j,1);
     }
   }
+}
+
+function optionsMenu() {
+  
 }
 
 function playButton() {
