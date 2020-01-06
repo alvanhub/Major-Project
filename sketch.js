@@ -10,8 +10,8 @@ let rows = 95;
 let cols = 95;
 let gridW = 1750;
 
-let pBulletX = 500;
-let pBulletY = 500;
+let pBulletX = 650;
+let pBulletY = 400;
 let xCoord;
 let yCoord;
 let player;
@@ -152,16 +152,20 @@ function inputGrid() {
 
  class Player {
    constructor() {
-    this.playerX = 500;
-    this.playerY = 500;
+    this.playerX = 650;
+    this.playerY = 400;
     this.yVelocity = 0;
     this.xVelocity = 0;
-    this.north = this.playerY-200;
-    this.south = this.playerY+200;
-    this.west = this.playerX-200;
-    this.east = this.playerX+200;
-    this.shiftD = 200;
+    this.north = this.playerY-270;
+    this.south = this.playerY+270;
+    this.west = this.playerX-270;
+    this.east = this.playerX+270;
+    this.shiftD = 270;
     this.brakes = 1;
+    this.health = 800;
+    this.barX = windowWidth/2 - 400;
+    this.barY = windowHeight - 30;
+    this.shiftCoolDown = 700;
    }
 
    create() {
@@ -272,7 +276,7 @@ function inputGrid() {
     dDifference = yT + this.playerY;
 
     if (keyIsDown(DOWN_ARROW)) {
-      if(this.yVelocity < 15){
+      if(this.yVelocity < 10){
         this.yVelocity += 1;
       }
       push();
@@ -285,7 +289,7 @@ function inputGrid() {
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
-      if(this.xVelocity < 15){
+      if(this.xVelocity < 10){
         this.xVelocity += 1;
       }
       push();
@@ -297,7 +301,7 @@ function inputGrid() {
       this.xVelocity -= this.brakes;
     }
     if (keyIsDown(LEFT_ARROW)) {
-      if(this.xVelocity > -15){
+      if(this.xVelocity > -10){
         this.xVelocity -= 1;
       }
       push();
@@ -309,7 +313,7 @@ function inputGrid() {
       this.xVelocity += this.brakes;
     }
     if (keyIsDown(UP_ARROW)) {
-      if(this.yVelocity > -15){
+      if(this.yVelocity > -10){
         this.yVelocity -= 1;
       }
       push();
@@ -322,12 +326,15 @@ function inputGrid() {
     }
 
     if (pHit === true) {
-      if((this.yVelocity <= 15 && this.yVelocity >= 0) || (this.yVelocity >= -15 && this.yVelocity <= 0) ){
-        this.yVelocity += floor(eHitY/2);
+      if(gate === 'closed') {
+        if((this.yVelocity <= 10 && this.yVelocity >= 0) || (this.yVelocity >= -10 && this.yVelocity <= 0) ){
+          this.yVelocity += floor(eHitY/2);
+        }
+        if((this.xVelocity <= 10 && this.xVelocity >= 0) || (this.xVelocity >= -10 && this.xVelocity <= 0) ){
+          this.xVelocity += floor(eHitX/2);
+        }
       }
-      if((this.xVelocity <= 15 && this.xVelocity >= 0) || (this.xVelocity >= -15 && this.xVelocity <= 0) ){
-        this.xVelocity += floor(eHitX/2);
-      }
+      this.health -= 10;
       pHit = false;
     }
 
@@ -343,18 +350,24 @@ function inputGrid() {
     pBulletY += this.yVelocity;
     xT -= this.xVelocity;
     yT -= this.yVelocity;
+    this.barX += this.xVelocity;
+    this.barY += this.yVelocity;
     
-     if(rDifference > 520) {
-       xT -= 25;
+     if(rDifference > 670) {
+       xT -= 35;
+       this.barX += 35;
      }
-     if(lDifference < 480) {
-       xT += 25;
+     if(lDifference < 630) {
+       xT += 35;
+       this.barX -= 35;
      }
-     if(uDifference > 520) {
-       yT -= 25;
+     if(uDifference > 420) {
+       yT -= 35;
+       this.barY += 35;
      }
-     if(dDifference < 480) {
-       yT += 25;
+     if(dDifference < 380) {
+       yT += 35;
+       this.barY -= 35;
      }
      
   }
@@ -373,120 +386,122 @@ function inputGrid() {
         rect(playerPositions[i].x,playerPositions[i].y,40,40);
       }
 
-      if (direction === "up"){
-        if(grid[uCoord][xCoord]===0) {
-          if(grid[uCoord+1][xCoord]===0 && grid[uCoord+2][xCoord]===0) {
-            if(grid[uCoord-1][xCoord]===0) {
-              this.playerY -= this.shiftD;
-              pBulletY -= this.shiftD;
-              this.north -= this.shiftD;
-              this.south -= this.shiftD;
+      if(this.shiftCoolDown >= 100) {
+        if (direction === "up"){
+          if(grid[uCoord][xCoord]===0) {
+            if(grid[uCoord+1][xCoord]===0 && grid[uCoord+2][xCoord]===0) {
+              if(grid[uCoord-1][xCoord]===0) {
+                this.playerY -= this.shiftD;
+                pBulletY -= this.shiftD;
+                this.north -= this.shiftD;
+                this.south -= this.shiftD;
+              }else{
+                this.playerY -= (this.shiftD-40);
+                pBulletY -= (this.shiftD-40);
+                this.north -= (this.shiftD-40);
+                this.south -= (this.shiftD-40);
+              }
             }else{
-              this.playerY -= (this.shiftD-40);
-              pBulletY -= (this.shiftD-40);
-              this.north -= (this.shiftD-40);
-              this.south -= (this.shiftD-40);
+              this.playerY -= (this.shiftD+60);
+              pBulletY -= (this.shiftD+60);
+              this.north -= (this.shiftD+60);
+              this.south -= (this.shiftD+60);
             }
-          }else{
-            this.playerY -= (this.shiftD+60);
-            pBulletY -= (this.shiftD+60);
-            this.north -= (this.shiftD+60);
-            this.south -= (this.shiftD+60);
+          }else if(grid[uCoord+1][xCoord]===0) {
+            this.playerY -= (this.shiftD-60);
+            pBulletY -= (this.shiftD-60);
+            this.north -= (this.shiftD-60);
+            this.south -= (this.shiftD-60);
           }
-        }else if(grid[uCoord+1][xCoord]===0) {
-          this.playerY -= (this.shiftD-60);
-          pBulletY -= (this.shiftD-60);
-          this.north -= (this.shiftD-60);
-          this.south -= (this.shiftD-60);
         }
-      }
-      
-      
-      if (direction === "down"){
-        if(grid[dCoord+1][xCoord]===0) {
-          if(grid[dCoord][xCoord]===0 && grid[dCoord-1][xCoord]===0) {
-            if(grid[dCoord+2][xCoord]===0) {
-              this.playerY += this.shiftD;
-              pBulletY += this.shiftD;
-              this.north += this.shiftD;
-              this.south += this.shiftD;
+        
+        
+        if (direction === "down"){
+          if(grid[dCoord+1][xCoord]===0) {
+            if(grid[dCoord][xCoord]===0 && grid[dCoord-1][xCoord]===0) {
+              if(grid[dCoord+2][xCoord]===0) {
+                this.playerY += this.shiftD;
+                pBulletY += this.shiftD;
+                this.north += this.shiftD;
+                this.south += this.shiftD;
+              }else {
+                this.playerY += (this.shiftD - 60);
+                pBulletY += (this.shiftD - 60);
+                this.north += (this.shiftD - 60);
+                this.south += (this.shiftD - 60);
+              }
             }else {
-              this.playerY += (this.shiftD - 60);
-              pBulletY += (this.shiftD - 60);
-              this.north += (this.shiftD - 60);
-              this.south += (this.shiftD - 60);
+              this.playerY += (this.shiftD + 60);
+              pBulletY += (this.shiftD + 60);
+              this.north += (this.shiftD + 60);
+              this.south += (this.shiftD + 60);
             }
-          }else {
-            this.playerY += (this.shiftD + 60);
-            pBulletY += (this.shiftD + 60);
-            this.north += (this.shiftD + 60);
-            this.south += (this.shiftD + 60);
+          }
+          else if (grid[dCoord][xCoord]===0) {
+            this.playerY += (this.shiftD - 60);
+            pBulletY += (this.shiftD - 60);
+            this.north += (this.shiftD - 60);
+            this.south += (this.shiftD - 60);
           }
         }
-        else if (grid[dCoord][xCoord]===0) {
-          this.playerY += (this.shiftD - 60);
-          pBulletY += (this.shiftD - 60);
-          this.north += (this.shiftD - 60);
-          this.south += (this.shiftD - 60);
-        }
-      }
 
 
-      if (direction === "left"){
-        if(grid[yCoord][lCoord]===0) {
-          if(grid[yCoord][lCoord+1]===0 && grid[yCoord][lCoord+2]===0) {
-            if(grid[yCoord][lCoord-1]===0) {
-              this.playerX -= this.shiftD;
-              pBulletX -= this.shiftD;
-              this.east -= this.shiftD;
-              this.west -= this.shiftD;
+        if (direction === "left"){
+          if(grid[yCoord][lCoord]===0) {
+            if(grid[yCoord][lCoord+1]===0 && grid[yCoord][lCoord+2]===0) {
+              if(grid[yCoord][lCoord-1]===0) {
+                this.playerX -= this.shiftD;
+                pBulletX -= this.shiftD;
+                this.east -= this.shiftD;
+                this.west -= this.shiftD;
+              }else {
+                this.playerX -= (this.shiftD - 40);
+                pBulletX -= (this.shiftD - 40);
+                this.east -= (this.shiftD - 40);
+                this.west -= (this.shiftD - 40);
+              }
             }else {
-              this.playerX -= (this.shiftD - 40);
-              pBulletX -= (this.shiftD - 40);
-              this.east -= (this.shiftD - 40);
-              this.west -= (this.shiftD - 40);
+              this.playerX -= (this.shiftD + 60);
+              pBulletX -= (this.shiftD + 60);
+              this.east -= (this.shiftD + 60);
+              this.west -= (this.shiftD + 60);
             }
-          }else {
-            this.playerX -= (this.shiftD + 60);
-            pBulletX -= (this.shiftD + 60);
-            this.east -= (this.shiftD + 60);
-            this.west -= (this.shiftD + 60);
+          }
+          else if(grid[yCoord][lCoord+1]===0) {
+            this.playerX -= (this.shiftD - 60);
+            pBulletX -= (this.shiftD - 60);
+            this.east -= (this.shiftD - 60);
+            this.west -= (this.shiftD - 60);
           }
         }
-        else if(grid[yCoord][lCoord+1]===0) {
-          this.playerX -= (this.shiftD - 60);
-          pBulletX -= (this.shiftD - 60);
-          this.east -= (this.shiftD - 60);
-          this.west -= (this.shiftD - 60);
-        }
-      }
 
 
-      if (direction === "right"){
-        if(grid[yCoord][rCoord+1]===0){
-          if(grid[yCoord][rCoord]===0 && grid[yCoord][rCoord-1]===0) {
-            if(grid[yCoord][rCoord+2]===0) {
-              this.playerX += this.shiftD;
-              pBulletX += this.shiftD;
-              this.east += this.shiftD;
-              this.west += this.shiftD;
-            }else {
-              this.playerX += (this.shiftD - 40);
-              pBulletX += (this.shiftD - 40);
-              this.east += (this.shiftD - 40);
-              this.west += (this.shiftD - 40);
+        if (direction === "right"){
+          if(grid[yCoord][rCoord+1]===0){
+            if(grid[yCoord][rCoord]===0 && grid[yCoord][rCoord-1]===0) {
+              if(grid[yCoord][rCoord+2]===0) {
+                this.playerX += this.shiftD;
+                pBulletX += this.shiftD;
+                this.east += this.shiftD;
+                this.west += this.shiftD;
+              }else {
+                this.playerX += (this.shiftD - 40);
+                pBulletX += (this.shiftD - 40);
+                this.east += (this.shiftD - 40);
+                this.west += (this.shiftD - 40);
+              }
+            }else{
+              this.playerX += (this.shiftD + 60);
+              pBulletX += (this.shiftD + 60);
+              this.east += (this.shiftD + 60);
+              this.west += (this.shiftD + 60);
             }
-          }else{
-            this.playerX += (this.shiftD + 60);
-            pBulletX += (this.shiftD + 60);
-            this.east += (this.shiftD + 60);
-            this.west += (this.shiftD + 60);
+          }else if (grid[yCoord][rCoord]===0) {
+            this.playerX += (this.shiftD - 60);
+            pBulletX += (this.shiftD - 60);
+            this.east += (this.shiftD - 60);
+            this.west += (this.shiftD - 60);
           }
-        }else if (grid[yCoord][rCoord]===0) {
-          this.playerX += (this.shiftD - 60);
-          pBulletX += (this.shiftD - 60);
-          this.east += (this.shiftD - 60);
-          this.west += (this.shiftD - 60);
         }
       }
 
@@ -499,14 +514,112 @@ function inputGrid() {
     pBulletX += this.xVelocity;
     pBulletY += this.yVelocity;
 
+      if(this.shiftCoolDown >= 100) { 
+        this.shiftCoolDown -= 100;
+      }
     }
 
     gate = "closed";
+    
+    if(this.shiftCoolDown < 700) {
+      this.shiftCoolDown += 1;
+    }
+    console.log(this.shiftCoolDown);
 
 
     if (gate === "closed") {
       if (playerPositions.length > maxPos) {
         playerPositions.shift();
+      }
+    }
+  }
+
+  playerStats() {
+    push();
+    rectMode(CORNER);
+    fill(255,0,0);
+    rect(this.barX,this.barY,800,30);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    fill(255,255,0);
+    rect(this.barX,this.barY,this.health,30);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    fill(0,0,0,255);
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX,this.barY,800,30);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    fill(0,255,255);
+    rect(this.barX+40,this.barY-20,this.shiftCoolDown,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+40,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+140,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+240,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+340,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+440,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+540,this.barY-20,100,15);
+    pop();
+
+    push();
+    rectMode(CORNER);
+    noFill();
+    stroke(0);
+    strokeWeight(5);
+    rect(this.barX+640,this.barY-20,100,15);
+    pop();
+
+    if(gameStatus === 'practice') {
+      if(this.health < 800) {
+        this.health += 10;
       }
     }
   }
@@ -652,8 +765,8 @@ class dashingEnemy {
     eHitY = this.bY;
 
 
-    if ((xDifferenceF <= 5 && xDifferenceF >= 0) || (xDifferenceB <= 5 && xDifferenceB >= 0)) {
-      if((yDifferenceF <= 5 && yDifferenceF >= 0) || (yDifferenceB <= 5 && yDifferenceB >= 0)) {
+    if ((xDifferenceF <= 6 && xDifferenceF >= 0) || (xDifferenceB <= 6 && xDifferenceB >= 0)) {
+      if((yDifferenceF <= 6 && yDifferenceF >= 0) || (yDifferenceB <= 6 && yDifferenceB >= 0)) {
         this.move = false;
       }
     }
@@ -816,15 +929,17 @@ class dashingEnemy {
 
 function practiceMode() {
   background(levelBackground);
-  translate(xT,yT)
+  translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
 
   
   player.create();
+  player.playerStats();
   player.gridCheck();
   player.movementControl();
   player.teleport();
+
   
   for (let i =0; i < bullets.length; i++) {
     bullets[i].create();
