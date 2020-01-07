@@ -73,6 +73,8 @@ function draw() {
     playButton();
     optionsButton();
     mouseCheck();
+  }else if(gameStatus === 'options') {
+    optionsMenu();
   }
   else if (gameStatus === 'gamemodes') {
     background(0);
@@ -546,7 +548,7 @@ function inputGrid() {
 
     push();
     rectMode(CORNER);
-    fill(255,255,0);
+    fill(255,140,0);
     rect(this.barX,this.barY,this.health,30);
     pop();
 
@@ -1002,7 +1004,35 @@ function practiceMode() {
 }
 
 function optionsMenu() {
-  
+  background(180);
+  textAlign(LEFT);
+  textSize(35);
+  fill(0);
+  text("Controls",width/2-600,height/2-300);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Move Up - Up Arrow",width/2-400,height/2-225);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Move Down - Down Arrow",width/2-325,height/2-150);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Move Right - Right Arrow",width/2-340,height/2-75);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Move Left - Left Arrow",width/2-380,height/2);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Shoot - Left Click",width/2-447,height/2+75);
+  textAlign(RIGHT);
+  textSize(30);
+  fill(0);
+  text("Dash - Shift",width/2-520,height/2+150);
 }
 
 function playButton() {
@@ -1050,6 +1080,8 @@ function mouseCheck() {
     if (gameStatus === 'menu') {
       if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
         gameStatus = 'gamemodes';
+      }else if(mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25){
+        gameStatus = 'options'
       }
     }
     else if (gameStatus === 'gamemodes') {
