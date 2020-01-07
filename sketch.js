@@ -47,6 +47,11 @@ let gameStatus = "menu";
 
 let reload = false;
 
+let wave = 1;
+let waveKills = 5;
+let currentKills = 0;
+let spawnrate = 2000;
+
 
 
 
@@ -750,8 +755,10 @@ function inputGrid() {
     gate = "open"
   }
   if(key === 'a'){
-    let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
-    enemies.push(enemy1);
+    if(gameStatus === 'practice') {
+      let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
+      enemies.push(enemy1);
+    }
   }
 }
 
@@ -764,7 +771,7 @@ class dashingEnemy {
     this.speed = 10;
     this.bounce = 20;
     this.move = true;
-    this.wait = 600;
+    this.wait = 0;
     this.first = 0;
     this.isT = true;
     this.targetAngle;
@@ -805,36 +812,47 @@ class dashingEnemy {
     eHitX = this.bX;
     eHitY = this.bY;
 
+    if (this.wait <= 0) {
+      this.x += this.xV;
+      this.y += this.yV;
+    }
+    else if (this.wait > 11) {
+      this.wait -= 10;
+    }else{
+      this.x += this.bX;
+      this.y += this.bY;
+    }
 
     if ((xDifferenceF <= 6 && xDifferenceF >= 0) || (xDifferenceB <= 6 && xDifferenceB >= 0)) {
       if((yDifferenceF <= 6 && yDifferenceF >= 0) || (yDifferenceB <= 6 && yDifferenceB >= 0)) {
-        this.move = false;
+        this.wait = 1000;
       }
     }
 
-    if (this.move === true) {
-      this.isT = true;
-      this.x += this.xV;
-      this.y += this.yV;
-    }else{
-      if (this.isT) {
-        if (dX < 27 && dY < 27) {
-          this.x += 0;
-          this.y += 0;
-        }else{
-          this.x += this.bX;
-          this.y += this.bY;
-        }
-      }else {
-        this.x += 0;
-        this.y += 0;
-      }
 
-      if(millis() > this.first + this.wait) {
-        this.isT = !this.isT;
-        this.first = millis();
-      }
-    }
+    
+      // if (this.isT) {
+      //   if (dX < 27 && dY < 27) {
+      //     this.x += 0;
+      //     this.y += 0;
+      //   }else{
+      //     if ((xDifferenceF <= 6 && xDifferenceF >= 0) || (xDifferenceB <= 6 && xDifferenceB >= 0)) {
+      //       if((yDifferenceF <= 6 && yDifferenceF >= 0) || (yDifferenceB <= 6 && yDifferenceB >= 0)) {
+      //         this.x += this.bX;
+      //         this.y += this.bY;
+      //       }
+      //     }
+      //   }
+      // }else {
+      //   this.x += this.xV;
+      //   this.y += this.yV;
+      // }
+
+      // if(millis() > this.first + this.wait) {
+      //   this.isT = !this.isT;
+      //   this.first = millis();
+      // }
+    
     
 
     if (grid[eY-1][eX] === 3) {
@@ -1126,9 +1144,8 @@ function mouseCheck() {
     else if (gameStatus === 'gamemodes') {
       if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
         gameStatus = 'practice';
-      }else if(mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25){
-        gameStatus = 'survival';
-      }
+       }
+       
     }
   }
 }
