@@ -41,6 +41,7 @@ let pHit = false;
 let eHitY;
 let eHitX;
 let enemies = [];
+let spawnPoints = [500,1300];
 
 let gameStatus = "menu";
 
@@ -85,7 +86,9 @@ function draw() {
   else if(gameStatus === 'practice') {
     practiceMode();
   }
-
+  else if(gameStatus === 'survival') {
+    survivalMode();
+  }
   
 }
 
@@ -164,6 +167,7 @@ function inputGrid() {
     this.south = this.playerY+270;
     this.west = this.playerX-270;
     this.east = this.playerX+270;
+    this.maxSpeed = 5;
     this.shiftD = 270;
     this.brakes = 1;
     this.health = 800;
@@ -281,7 +285,7 @@ function inputGrid() {
     dDifference = yT + this.playerY;
 
     if (keyIsDown(DOWN_ARROW)) {
-      if(this.yVelocity < 10){
+      if(this.yVelocity < this.maxSpeed){
         this.yVelocity += 1;
       }
       push();
@@ -294,7 +298,7 @@ function inputGrid() {
     }
   
     if (keyIsDown(RIGHT_ARROW)) {
-      if(this.xVelocity < 10){
+      if(this.xVelocity < this.maxSpeed){
         this.xVelocity += 1;
       }
       push();
@@ -306,7 +310,7 @@ function inputGrid() {
       this.xVelocity -= this.brakes;
     }
     if (keyIsDown(LEFT_ARROW)) {
-      if(this.xVelocity > -10){
+      if(this.xVelocity > -this.maxSpeed){
         this.xVelocity -= 1;
       }
       push();
@@ -318,7 +322,7 @@ function inputGrid() {
       this.xVelocity += this.brakes;
     }
     if (keyIsDown(UP_ARROW)) {
-      if(this.yVelocity > -10){
+      if(this.yVelocity > -this.maxSpeed){
         this.yVelocity -= 1;
       }
       push();
@@ -332,10 +336,10 @@ function inputGrid() {
 
     if (pHit === true) {
       if(gate === 'closed') {
-        if((this.yVelocity <= 10 && this.yVelocity >= 0) || (this.yVelocity >= -10 && this.yVelocity <= 0) ){
+        if((this.yVelocity <= this.maxSpeed && this.yVelocity >= 0) || (this.yVelocity >= -this.maxSpeed && this.yVelocity <= 0) ){
           this.yVelocity += floor(eHitY/2);
         }
-        if((this.xVelocity <= 10 && this.xVelocity >= 0) || (this.xVelocity >= -10 && this.xVelocity <= 0) ){
+        if((this.xVelocity <= this.maxSpeed && this.xVelocity >= 0) || (this.xVelocity >= -this.maxSpeed && this.xVelocity <= 0) ){
           this.xVelocity += floor(eHitX/2);
         }
       }
@@ -529,8 +533,6 @@ function inputGrid() {
     if(this.shiftCoolDown < 700) {
       this.shiftCoolDown += 1;
     }
-    console.log(this.shiftCoolDown);
-
 
     if (gate === "closed") {
       if (playerPositions.length > maxPos) {
@@ -649,7 +651,7 @@ function inputGrid() {
           this.bulletCoolDown++;
         }
         if(mouseIsPressed) {
-          this.bulletCoolDown -=10;
+          this.bulletCoolDown -= 10;
         }
       }else if(reload === true) {
         if (this.bulletCoolDown < 695) {
@@ -723,7 +725,7 @@ function inputGrid() {
 
  function mousePressed() {
    if(reload === false) {
-    if(gameStatus === 'practice') {
+    if(gameStatus === 'practice' || gameStatus === 'survival') {
       myB = new playerBullet(pBulletX,pBulletY,false);
       bullets.push(myB);
     }
@@ -748,7 +750,7 @@ function inputGrid() {
     gate = "open"
   }
   if(key === 'a'){
-    let enemy1 = new dashingEnemy(500,900,5);
+    let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
     enemies.push(enemy1);
   }
 }
@@ -759,7 +761,7 @@ class dashingEnemy {
     this.x = x;
     this.y = y;
     this.health = health;
-    this.speed = 5;
+    this.speed = 10;
     this.bounce = 20;
     this.move = true;
     this.wait = 600;
@@ -875,7 +877,7 @@ class dashingEnemy {
     if (grid[eY][eX-1] === 2 || grid[eY][eX] === 2 || grid[eY-1][eX] === 2 || grid[eY-1][eX+1] === 2 || grid[eY+1][eX] === 2 || 
       grid[eY+2][eX] === 2 || grid[eY+2][eX+1] === 2 || grid[eY][eX+1] === 2 || grid[eY+1][eX+1] === 2 || grid[eY][eX+2] === 2 ||
       grid[eY+1][eX+2] === 2 || grid[eY+1][eX-1] === 2) {
-      this.speed -= 13;
+      this.speed -= 17;
       this.health--;
     }
 
@@ -1003,6 +1005,43 @@ function practiceMode() {
   }
 }
 
+function survivalMode() {
+  background(levelBackground);
+  translate(xT,yT);
+  displayGrid(grid, rows, cols);
+  inputGrid();
+
+  
+  player.create();
+  player.playerStats();
+  player.gridCheck();
+  player.movementControl();
+  player.teleport();
+
+  
+  for (let i =0; i < bullets.length; i++) {
+    bullets[i].create();
+    bullets[i].update();
+    bullets[i].gridUpdate();
+    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
+      bullets[i].y < 55 || bullets[i].y > 1695) {
+        bullets.splice(i, 1);
+    }
+    else if (bullets[i].hit === true) {
+      bullets.splice(i, 1);
+    }
+  }
+  
+  for (let j = 0; j < enemies.length; j++) {
+    enemies[j].create();
+    enemies[j].directionalInput();
+    enemies[j].gridCheck();
+    if(enemies[j].health <= 0) {
+      enemies.splice(j,1);
+    }
+  }
+}
+
 function optionsMenu() {
   background(180);
   textAlign(LEFT);
@@ -1087,6 +1126,8 @@ function mouseCheck() {
     else if (gameStatus === 'gamemodes') {
       if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
         gameStatus = 'practice';
+      }else if(mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25){
+        gameStatus = 'survival';
       }
     }
   }
