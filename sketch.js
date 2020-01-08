@@ -805,20 +805,8 @@ class dashingEnemy {
     this.xV = floor(this.speed*cos(this.targetAngle));
     this.yV = floor(this.speed*sin(this.targetAngle));
 
-    if(eX < xCoord) {
-      this.xPoint = pBulletX + 50;
-    }else{
-      this.xPoint = pBulletX - 50;
-    }
-
-    if(eY < yCoord) {
-      this.yPoint = pBulletY + 50;
-    }else{
-      this.yPoint = pBulletY - 50;
-    }
-
-    this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x)
-
+    let dX = abs(this.x - this.xPoint);
+    let dY = abs(this.y - this.yPoint);
     
     eHitX = this.bX;
     eHitY = this.bY;
@@ -826,6 +814,21 @@ class dashingEnemy {
     if(this.isT) {
       this.x += this.xV;
       this.y += this.yV;
+      if(eX < xCoord-2) {
+        this.xPoint = pBulletX + 300;
+      }else if(eX > xCoord + 2){
+        this.xPoint = pBulletX - 300;
+      }else{
+        this.xPoint = pBulletX;
+      }
+  
+      if(eY < yCoord-2) {
+        this.yPoint = pBulletY + 300;
+      }else if(eY > yCoord + 2){
+        this.yPoint = pBulletY - 300;
+      }else{
+        this.yPoint = pBulletY;
+      }
       
       if (xDifference < 6 && yDifference < 6) {
           this.charge = true;
@@ -838,12 +841,24 @@ class dashingEnemy {
       if(this.wait >= 200) {
         this.wait -= 50;
       }else if(this.wait > 0) {
-        if (xDifference > 2 || yDifference > 2) {
-          this.bX = floor(this.bounce*cos(this.targetAngle));
-          this.bY = floor(this.bounce*sin(this.targetAngle));
-          this.x += this.bX;
-          this.y += this.bY;
+        if (grid[eY][eX-1] === 3 || grid[eY][eX] === 3 || grid[eY-1][eX] === 3 || grid[eY-1][eX+1] === 3 || grid[eY+1][eX] === 3 || 
+          grid[eY+2][eX] === 3 || grid[eY+2][eX+1] === 3 || grid[eY][eX+1] === 3 || grid[eY+1][eX+1] === 3 || grid[eY][eX+2] === 3 ||
+          grid[eY+1][eX+2] === 3 || grid[eY+1][eX-1] === 3) {
+          this.speed -= 5;
+          this.isT = true;
+          this.wait = 1000;
+          this.charge = false;
         }
+
+        this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x);
+
+        if(dX > 30 || dY > 30) {
+          this.bX = floor(this.bounce*cos(this.extendedAngle));
+          this.bY = floor(this.bounce*sin(this.extendedAngle));
+        }
+
+        this.x += this.bX;
+        this.y += this.bY;
         this.wait -= 5;
       }else{
         this.isT = true;
