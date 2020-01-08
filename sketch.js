@@ -265,6 +265,7 @@ function inputGrid() {
       crashY = true;
     }
 
+
     if (crashX === true){
       if (this.xVelocity > 0) {
         this.xVelocity += 5;
@@ -755,7 +756,7 @@ function inputGrid() {
     gate = "open"
   }
   if(key === 'a'){
-    if(gameStatus === 'practice') {
+    if(gameStatus === 'practice' || gameStatus === 'survival') {
       let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
       enemies.push(enemy1);
     }
@@ -1136,11 +1137,11 @@ function practiceButton() {
 function survivalButton() {
   rectMode(CENTER);
   fill(255);
-  rect(width/2 - 300, height/2 - 100, 400, 150);
+  rect(width/2 - 300, height/2 + 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
   fill(0);
-  text("Survival",width/2-300,height/2-100);
+  text("Survival",width/2-300,height/2+100);
 }
 
 function mouseCheck() {
@@ -1155,7 +1156,9 @@ function mouseCheck() {
     else if (gameStatus === 'gamemodes') {
       if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
         gameStatus = 'practice';
-       }
+       }else if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 + 25 && mouseY < height/2 + 175) {
+        gameStatus = 'survival';
+      }
        
     }
   }
