@@ -771,10 +771,14 @@ class dashingEnemy {
     this.speed = 10;
     this.bounce = 20;
     this.move = true;
-    this.wait = 0;
+    this.wait = 1000;
     this.first = 0;
     this.isT = true;
+    this.charge = false;
     this.targetAngle;
+    this.extendedAngle;
+    this.xPoint;
+    this.yPoint;
     this.xV;
     this.yV;
     this.bX;
@@ -793,66 +797,60 @@ class dashingEnemy {
     let eY = floor(this.y/celSize);
     let eX = floor(this.x/celSize);
 
-    let xDifferenceF = xCoord - eX;
-    let yDifferenceF = yCoord - eY;
-    let xDifferenceB = eX - xCoord;
-    let yDifferenceB = eY - yCoord;
-    
-    let dY = abs(pBulletY - this.y);
-    let dX = abs(pBulletX - this.x);
+    let xDifference = abs(xCoord - eX);
+    let yDifference = abs(yCoord - eY);
 
     this.targetAngle = atan2(pBulletY - this.y, pBulletX - this.x);
 
     this.xV = floor(this.speed*cos(this.targetAngle));
     this.yV = floor(this.speed*sin(this.targetAngle));
-    this.bX = floor(this.bounce*cos(this.targetAngle));
-    this.bY = floor(this.bounce*sin(this.targetAngle));
 
+    if(eX < xCoord) {
+      this.xPoint = pBulletX + 50;
+    }else{
+      this.xPoint = pBulletX - 50;
+    }
 
+    if(eY < yCoord) {
+      this.yPoint = pBulletY + 50;
+    }else{
+      this.yPoint = pBulletY - 50;
+    }
+
+    this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x)
+
+    
     eHitX = this.bX;
     eHitY = this.bY;
 
-    if (this.wait <= 0) {
+    if(this.isT) {
       this.x += this.xV;
       this.y += this.yV;
-    }
-    else if (this.wait > 11) {
-      this.wait -= 10;
-    }else{
-      this.x += this.bX;
-      this.y += this.bY;
+      
+      if (xDifference < 6 && yDifference < 6) {
+          this.charge = true;
+          this.isT = false;
+        }
     }
 
-    if ((xDifferenceF <= 6 && xDifferenceF >= 0) || (xDifferenceB <= 6 && xDifferenceB >= 0)) {
-      if((yDifferenceF <= 6 && yDifferenceF >= 0) || (yDifferenceB <= 6 && yDifferenceB >= 0)) {
-        this.wait = 1000;
+
+    if(this.charge) {
+      if(this.wait >= 200) {
+        this.wait -= 50;
+      }else if(this.wait > 0) {
+        if (xDifference > 2 || yDifference > 2) {
+          this.bX = floor(this.bounce*cos(this.targetAngle));
+          this.bY = floor(this.bounce*sin(this.targetAngle));
+          this.x += this.bX;
+          this.y += this.bY;
+        }
+        this.wait -= 5;
+      }else{
+        this.isT = true;
+        this.wait = 1000
+        this.charge = false;
       }
     }
-
-
-    
-      // if (this.isT) {
-      //   if (dX < 27 && dY < 27) {
-      //     this.x += 0;
-      //     this.y += 0;
-      //   }else{
-      //     if ((xDifferenceF <= 6 && xDifferenceF >= 0) || (xDifferenceB <= 6 && xDifferenceB >= 0)) {
-      //       if((yDifferenceF <= 6 && yDifferenceF >= 0) || (yDifferenceB <= 6 && yDifferenceB >= 0)) {
-      //         this.x += this.bX;
-      //         this.y += this.bY;
-      //       }
-      //     }
-      //   }
-      // }else {
-      //   this.x += this.xV;
-      //   this.y += this.yV;
-      // }
-
-      // if(millis() > this.first + this.wait) {
-      //   this.isT = !this.isT;
-      //   this.first = millis();
-      // }
-    
     
 
     if (grid[eY-1][eX] === 3) {
@@ -898,8 +896,6 @@ class dashingEnemy {
       this.speed -= 17;
       this.health--;
     }
-
-   
 
     if (this.speed < 5) {
       this.speed += 2;
