@@ -51,7 +51,7 @@ let wave = 1;
 let waveKills = 5;
 let currentKills = 0;
 let spawnRate = 2000;
-let spawnEnemy = false;
+let spawnEnemy = true;
 let eTimer = 0;
 
 
@@ -669,6 +669,26 @@ function inputGrid() {
         }
       }
     }
+    else if(gameStatus === 'survival') {
+      if(this.bulletCoolDown <= 0) {
+        reload = true;
+      }
+
+      if (reload === false) {
+        if(this.bulletCoolDown < 700) {
+          this.bulletCoolDown++;
+        }
+        if(mouseIsPressed) {
+          this.bulletCoolDown -= 10;
+        }
+      }else if(reload === true) {
+        if (this.bulletCoolDown < 695) {
+          this.bulletCoolDown += 5;
+        }else {
+          reload = false;
+        }
+      }
+    }
   }
 
 
@@ -759,8 +779,10 @@ function inputGrid() {
   }
   if(key === 'a'){
     if(gameStatus === 'practice') {
-      let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
-      enemies.push(enemy1);
+      if(spawnEnemy) {
+        let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
+        enemies.push(enemy1);
+      }
     }
   }
 }
@@ -796,9 +818,9 @@ class dashingEnemy {
 
   directionalInput() {
     this.move = true;
-    let celSize = gridW/cols;
-    let eY = floor(this.y/celSize);
-    let eX = floor(this.x/celSize);
+    let cellSize = gridW/cols;
+    let eY = floor(this.y/cellSize);
+    let eX = floor(this.x/cellSize);
 
     let xDifference = abs(xCoord - eX);
     let yDifference = abs(yCoord - eY);
@@ -813,6 +835,14 @@ class dashingEnemy {
     
     eHitX = this.bX;
     eHitY = this.bY;
+
+    if (xDifference < 10 && yDifference < 10) {
+      spawnEnemy = false;
+    }else{
+      if(gameStatus === 'practice') {
+        spawnEnemy = true;
+      }
+    }
 
     if(this.isT) {
       this.x += this.xV;
@@ -929,9 +959,9 @@ class dashingEnemy {
   }
   
   gridCheck() {
-    let celSize = gridW/cols;
-    let eY = floor(this.y/celSize);
-    let eX = floor(this.x/celSize);
+    let cellSize = gridW/cols;
+    let eY = floor(this.y/cellSize);
+    let eX = floor(this.x/cellSize);
 
     if (grid[eY][eX] === 0) {
       grid[eY][eX] = 4;
@@ -1007,6 +1037,7 @@ function practiceMode() {
   displayGrid(grid, rows, cols);
   inputGrid();
 
+  console.log(spawnEnemy);
   
   player.create();
   player.playerStats();
@@ -1047,6 +1078,7 @@ function survivalMode() {
   if(spawnEnemy) {
     let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
     enemies.push(enemy1);
+    spawnEnemy = false;
   }
 
   if(millis() > eTimer + spawnRate) {
