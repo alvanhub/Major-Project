@@ -50,7 +50,9 @@ let reload = false;
 let wave = 1;
 let waveKills = 5;
 let currentKills = 0;
-let spawnrate = 2000;
+let spawnRate = 2000;
+let spawnEnemy = false;
+let eTimer = 0;
 
 
 
@@ -756,7 +758,7 @@ function inputGrid() {
     gate = "open"
   }
   if(key === 'a'){
-    if(gameStatus === 'practice' || gameStatus === 'survival') {
+    if(gameStatus === 'practice') {
       let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
       enemies.push(enemy1);
     }
@@ -837,6 +839,13 @@ class dashingEnemy {
         }
     }
 
+    this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x);
+
+    if(dX > 30 || dY > 30) {
+      this.bX = floor(this.bounce*cos(this.extendedAngle));
+      this.bY = floor(this.bounce*sin(this.extendedAngle));
+    }
+
 
     if(this.charge) {
       if(this.wait >= 200) {
@@ -845,22 +854,16 @@ class dashingEnemy {
         if (grid[eY][eX-1] === 3 || grid[eY][eX] === 3 || grid[eY-1][eX] === 3 || grid[eY-1][eX+1] === 3 || grid[eY+1][eX] === 3 || 
           grid[eY+2][eX] === 3 || grid[eY+2][eX+1] === 3 || grid[eY][eX+1] === 3 || grid[eY+1][eX+1] === 3 || grid[eY][eX+2] === 3 ||
           grid[eY+1][eX+2] === 3 || grid[eY+1][eX-1] === 3) {
-          this.speed -= 5;
-          this.isT = true;
-          this.wait = 1000;
-          this.charge = false;
+            this.x -= this.bX;
+            this.y -= this.bY;
+            this.isT = true;
+            this.wait = 1000
+            this.charge = false;
+        }else{
+          this.x += this.bX;
+          this.y += this.bY;
+          this.wait -= 5;
         }
-
-        this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x);
-
-        if(dX > 30 || dY > 30) {
-          this.bX = floor(this.bounce*cos(this.extendedAngle));
-          this.bY = floor(this.bounce*sin(this.extendedAngle));
-        }
-
-        this.x += this.bX;
-        this.y += this.bY;
-        this.wait -= 5;
       }else{
         this.isT = true;
         this.wait = 1000
@@ -1041,7 +1044,16 @@ function survivalMode() {
   displayGrid(grid, rows, cols);
   inputGrid();
 
-  
+  if(spawnEnemy) {
+    let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
+    enemies.push(enemy1);
+  }
+
+  if(millis() > eTimer + spawnRate) {
+    spawnEnemy = !spawnEnemy;
+    eTimer = millis();
+  }
+
   player.create();
   player.playerStats();
   player.gridCheck();
