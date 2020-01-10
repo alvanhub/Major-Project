@@ -50,6 +50,7 @@ let reload = false;
 let wave = 1;
 let waveKills = 5;
 let currentKills = 0;
+let totalKills = 0;
 let spawnRate = 2000;
 let spawnEnemy = true;
 let eTimer = 0;
@@ -95,6 +96,9 @@ function draw() {
   }
   else if(gameStatus === 'survival') {
     survivalMode();
+  }
+  else if(gameStatus = 'dead') {
+    deathMenu(); 
   }
   
 }
@@ -292,7 +296,7 @@ function inputGrid() {
     uDifference = this.playerY + yT;
     dDifference = yT + this.playerY;
 
-    if (keyIsDown(DOWN_ARROW)) {
+    if (keyIsDown(83)) {
       if(this.yVelocity < this.maxSpeed){
         this.yVelocity += 1;
       }
@@ -305,7 +309,7 @@ function inputGrid() {
       this.yVelocity -= this.brakes;
     }
   
-    if (keyIsDown(RIGHT_ARROW)) {
+    if (keyIsDown(68)) {
       if(this.xVelocity < this.maxSpeed){
         this.xVelocity += 1;
       }
@@ -317,7 +321,7 @@ function inputGrid() {
     else if(this.xVelocity > 0) {
       this.xVelocity -= this.brakes;
     }
-    if (keyIsDown(LEFT_ARROW)) {
+    if (keyIsDown(65)) {
       if(this.xVelocity > -this.maxSpeed){
         this.xVelocity -= 1;
       }
@@ -329,7 +333,7 @@ function inputGrid() {
     else if(this.xVelocity < 0) {
       this.xVelocity += this.brakes;
     }
-    if (keyIsDown(UP_ARROW)) {
+    if (keyIsDown(87)) {
       if(this.yVelocity > -this.maxSpeed){
         this.yVelocity -= 1;
       }
@@ -395,6 +399,8 @@ function inputGrid() {
     let uCoord = floor(this.north/cSize);
     let rCoord = floor(this.east/cSize);
     let lCoord = floor(this.west/cSize);
+    let shiftDid = true;
+
     
     playerPositions.push({x:this.playerX, y:this.playerY});
 
@@ -405,7 +411,11 @@ function inputGrid() {
 
       if(this.shiftCoolDown >= 100) {
         if (direction === "up"){
-          if(grid[uCoord][xCoord]===0) {
+          if(yCoord <= 14) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[uCoord][xCoord]===0) {
             if(grid[uCoord+1][xCoord]===0 && grid[uCoord+2][xCoord]===0) {
               if(grid[uCoord-1][xCoord]===0) {
                 this.playerY -= this.shiftD;
@@ -429,12 +439,18 @@ function inputGrid() {
             pBulletY -= (this.shiftD-60);
             this.north -= (this.shiftD-60);
             this.south -= (this.shiftD-60);
+          }else{
+            shiftDid = false;
           }
         }
         
         
         if (direction === "down"){
-          if(grid[dCoord+1][xCoord]===0) {
+          if(yCoord >= 79) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[dCoord+1][xCoord]===0) {
             if(grid[dCoord][xCoord]===0 && grid[dCoord-1][xCoord]===0) {
               if(grid[dCoord+2][xCoord]===0) {
                 this.playerY += this.shiftD;
@@ -459,6 +475,8 @@ function inputGrid() {
             pBulletY += (this.shiftD - 60);
             this.north += (this.shiftD - 60);
             this.south += (this.shiftD - 60);
+          }else{
+            shiftDid = false;
           }
         }
 
@@ -489,6 +507,8 @@ function inputGrid() {
             pBulletX -= (this.shiftD - 60);
             this.east -= (this.shiftD - 60);
             this.west -= (this.shiftD - 60);
+          }else{
+            shiftDid = false;
           }
         }
 
@@ -518,6 +538,8 @@ function inputGrid() {
             pBulletX += (this.shiftD - 60);
             this.east += (this.shiftD - 60);
             this.west += (this.shiftD - 60);
+          }else{
+            shiftDid = false;
           }
         }
       }
@@ -532,7 +554,9 @@ function inputGrid() {
     pBulletY += this.yVelocity;
 
       if(this.shiftCoolDown >= 100) { 
-        this.shiftCoolDown -= 100;
+        if(shiftDid) {
+          this.shiftCoolDown -= 100;
+        }
       }
     }
 
@@ -646,6 +670,11 @@ function inputGrid() {
     rect(this.barX+40,this.barY-40,700,15);
     pop();
 
+    push();
+    textSize(50)
+    text(wave, this.barX+400, this.barY - 700);
+    pop();
+
     if(gameStatus === 'practice') {
       if(this.health < 800) {
         this.health += 10;
@@ -687,6 +716,10 @@ function inputGrid() {
         }else {
           reload = false;
         }
+      }
+
+      if(this.health <= 0) {
+        gameStatus = 'dead';
       }
     }
   }
@@ -762,27 +795,38 @@ function inputGrid() {
 
  
  function keyPressed() {
-   if (keyCode === UP_ARROW) {
+   if (keyCode === 87) {
      direction = "up";
    }
-   if (keyCode === DOWN_ARROW) {
+   if (keyCode === 83) {
     direction = "down";
   }
-  if (keyCode === RIGHT_ARROW) {
+  if (keyCode === 68) {
     direction = "right";
   }
-  if (keyCode === LEFT_ARROW) {
+  if (keyCode === 65) {
     direction = "left";
   }
    if(keyCode === SHIFT){
     gate = "open"
   }
-  if(key === 'a'){
+  if(key === 'r'){
     if(gameStatus === 'practice') {
       if(spawnEnemy) {
         let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
         enemies.push(enemy1);
       }
+    }
+  }
+  if (keyCode === 66) {
+    if(gameStatus = 'gameModes') {
+      gameStatus = 'menu';
+    }
+    if(gameStatus = 'options'){
+      gameStatus = 'menu';
+    }
+    if(gameStatus = 'practice'){
+      gameStatus = 'gamemodes';
     }
   }
 }
@@ -793,8 +837,8 @@ class dashingEnemy {
     this.x = x;
     this.y = y;
     this.health = health;
-    this.speed = 10;
-    this.bounce = 20;
+    this.speed = 9;
+    this.bounce = 25;
     this.move = true;
     this.wait = 1000;
     this.first = 0;
@@ -838,11 +882,8 @@ class dashingEnemy {
 
     if (xDifference < 10 && yDifference < 10) {
       spawnEnemy = false;
-    }else{
-      if(gameStatus === 'practice') {
-        spawnEnemy = true;
-      }
     }
+
 
     if(this.isT) {
       this.x += this.xV;
@@ -946,7 +987,7 @@ class dashingEnemy {
       this.health--;
     }
 
-    if (this.speed < 5) {
+    if (this.speed < 8) {
       this.speed += 2;
     }else {
       this.speed -= 2;
@@ -1037,7 +1078,6 @@ function practiceMode() {
   displayGrid(grid, rows, cols);
   inputGrid();
 
-  console.log(spawnEnemy);
   
   player.create();
   player.playerStats();
@@ -1112,40 +1152,59 @@ function survivalMode() {
     enemies[j].gridCheck();
     if(enemies[j].health <= 0) {
       enemies.splice(j,1);
+      currentKills++;
+      totalKills++;
     }
+  }
+
+  if(currentKills >= waveKills) {
+    wave++;
+    waveKills += 2;
+    currentKills = 0;
   }
 }
 
 function optionsMenu() {
   background(180);
+  push();
   textAlign(LEFT);
   textSize(35);
   fill(0);
   text("Controls",width/2-600,height/2-300);
-  textAlign(RIGHT);
+  textAlign(LEFT);
   textSize(30);
   fill(0);
-  text("Move Up - Up Arrow",width/2-400,height/2-225);
-  textAlign(RIGHT);
+  text("Move Up - w",width/2-650,height/2-225);
   textSize(30);
   fill(0);
-  text("Move Down - Down Arrow",width/2-325,height/2-150);
-  textAlign(RIGHT);
+  text("Move Down - s",width/2-650,height/2-150);
   textSize(30);
   fill(0);
-  text("Move Right - Right Arrow",width/2-340,height/2-75);
-  textAlign(RIGHT);
+  text("Move Right - d",width/2-650,height/2-75);
   textSize(30);
   fill(0);
-  text("Move Left - Left Arrow",width/2-380,height/2);
-  textAlign(RIGHT);
+  text("Move Left - a",width/2-650,height/2);
   textSize(30);
   fill(0);
-  text("Shoot - Left Click",width/2-447,height/2+75);
-  textAlign(RIGHT);
+  text("Shoot - Left Click",width/2-650,height/2+75);
   textSize(30);
   fill(0);
-  text("Dash - Shift",width/2-520,height/2+150);
+  text("Dash - Shift",width/2-650,height/2+150);
+  pop();
+}
+
+function deathMenu() {
+  background(220);
+  textAlign(LEFT);
+  textSize(100);
+  fill(0);
+  text('Game Over', width/2-250, height/2 - height/2 + 100);
+  textSize(50);
+  fill(0);
+  text('Waves Cleard: ' + wave, windowWidth/2-170, windowHeight - windowHeight + 200);
+  textSize(50);
+  fill(0);
+  text('Total Kills: ' + totalKills, windowWidth/2-170, windowHeight - windowHeight + 300);
 }
 
 function playButton() {
