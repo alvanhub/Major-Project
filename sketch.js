@@ -205,7 +205,12 @@ function inputGrid() {
  
      xCoord = floor(this.playerX/ cellSize);
      yCoord = floor(this.playerY / cellSize);
-     
+
+     if( (yCoord <= 32 && yCoord >= 22 && xCoord <= 32 && xCoord >= 22) || (yCoord >= 65 && yCoord <= 75 && xCoord <= 32 && xCoord >= 22) 
+          || (yCoord >= 65 && yCoord <= 75 && xCoord >= 65 && xCoord <= 75) || (yCoord <= 32 && yCoord >= 22 && xCoord >= 65 && xCoord <= 75) ) {
+            spawnEnemy = false;
+     }
+
      if (grid[yCoord][xCoord] === 0) {
        grid[yCoord][xCoord] = 1;
       }
@@ -825,9 +830,9 @@ function inputGrid() {
     if(gameStatus = 'options'){
       gameStatus = 'menu';
     }
-    if(gameStatus = 'practice'){
-      gameStatus = 'gamemodes';
-    }
+    // if(gameStatus = 'practice'){
+    //   gameStatus = 'gamemodes';
+    // }
   }
 }
 
@@ -1189,7 +1194,7 @@ function optionsMenu() {
   text("Shoot - Left Click",width/2-650,height/2+75);
   textSize(30);
   fill(0);
-  text("Dash - Shift",width/2-650,height/2+150);
+  text("Dash - e",width/2-650,height/2+150);
   pop();
 }
 
@@ -1201,7 +1206,7 @@ function deathMenu() {
   text('Game Over', width/2-250, height/2 - height/2 + 100);
   textSize(50);
   fill(0);
-  text('Waves Cleard: ' + wave, windowWidth/2-170, windowHeight - windowHeight + 200);
+  text('Waves Cleared: ' + wave, windowWidth/2-170, windowHeight - windowHeight + 200);
   textSize(50);
   fill(0);
   text('Total Kills: ' + totalKills, windowWidth/2-170, windowHeight - windowHeight + 300);
