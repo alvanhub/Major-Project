@@ -307,7 +307,14 @@ function inputGrid() {
       }
       push();
       fill(225);
-      rect(this.playerX,this.south,40,40);
+      if(keyIsDown(68)) {
+        rect(this.east,this.south,40,40);
+      }
+      else if(keyIsDown(65)) {
+        rect(this.west,this.south,40,40);
+      }else{
+        rect(this.playerX,this.south,40,40);
+      }
       pop();
     }
     else if(this.yVelocity > 0) {
@@ -320,31 +327,54 @@ function inputGrid() {
       }
       push();
       fill(225);
-      rect(this.east,this.playerY,40,40);
+      if(keyIsDown(83)) {
+        rect(this.east,this.south,40,40);
+      }
+      else if(keyIsDown(87)) {
+        rect(this.east,this.north,40,40);
+      }else{
+        rect(this.east,this.playerY,40,40);
+      }
       pop();
     }
     else if(this.xVelocity > 0) {
       this.xVelocity -= this.brakes;
     }
+
     if (keyIsDown(65)) {
       if(this.xVelocity > -this.maxSpeed){
         this.xVelocity -= 1;
       }
       push();
       fill(225);
-      rect(this.west,this.playerY,40,40);
+      if(keyIsDown(83)) {
+        rect(this.west,this.south,40,40);
+      }
+      else if(keyIsDown(87)) {
+        rect(this.west,this.north,40,40);
+      }else{
+        rect(this.west,this.playerY,40,40);
+      }
       pop();
     }
     else if(this.xVelocity < 0) {
       this.xVelocity += this.brakes;
     }
+
     if (keyIsDown(87)) {
       if(this.yVelocity > -this.maxSpeed){
         this.yVelocity -= 1;
       }
       push();
       fill(225);
-      rect(this.playerX,this.north,40,40);
+      if(keyIsDown(68)) {
+        rect(this.east,this.north,40,40);
+      }
+      else if(keyIsDown(65)) {
+        rect(this.west,this.north,40,40);
+      }else{
+        rect(this.playerX,this.north,40,40);
+      }
       pop();
     }
     else if(this.yVelocity < 0) {
@@ -546,6 +576,50 @@ function inputGrid() {
           }else{
             shiftDid = false;
           }
+        }
+
+        if(direction === 'up-right') {
+          this.playerY -= this.shiftD;
+          pBulletY -= this.shiftD;
+          this.north -= this.shiftD;
+          this.south -= this.shiftD;
+          this.playerX += this.shiftD;
+          pBulletX += this.shiftD;
+          this.east += this.shiftD;
+          this.west += this.shiftD;
+        }
+
+        if(direction === 'up-left') {
+          this.playerY -= this.shiftD;
+          pBulletY -= this.shiftD;
+          this.north -= this.shiftD;
+          this.south -= this.shiftD;
+          this.playerX -= this.shiftD;
+          pBulletX -= this.shiftD;
+          this.east -= this.shiftD;
+          this.west -= this.shiftD;
+        }
+
+        if(direction === 'down-left') {
+          this.playerY += this.shiftD;
+          pBulletY += this.shiftD;
+          this.north += this.shiftD;
+          this.south += this.shiftD;
+          this.playerX -= this.shiftD;
+          pBulletX -= this.shiftD;
+          this.east -= this.shiftD;
+          this.west -= this.shiftD;
+        }
+
+        if(direction === 'down-right') {
+          this.playerY += this.shiftD;
+          pBulletY += this.shiftD;
+          this.north += this.shiftD;
+          this.south += this.shiftD;
+          this.playerX += this.shiftD;
+          pBulletX += this.shiftD;
+          this.east += this.shiftD;
+          this.west += this.shiftD;
         }
       }
 
@@ -800,12 +874,26 @@ function inputGrid() {
 
  
  function keyPressed() {
-   if (keyCode === 87) {
-     direction = "up";
+   if (keyIsDown(87)) {
+     if(keyIsDown(68)) {
+       direction = 'up-right'
+     }else if(keyIsDown(65)){
+       direction = 'up-left'
+     }else{
+       direction = 'up';
+     }
    }
-   if (keyCode === 83) {
-    direction = "down";
+   
+   if (keyIsDown(83)) {
+    if(keyIsDown(68)) {
+      direction = 'down-right'
+    }else if(keyIsDown(65)){
+      direction = 'down-left'
+    }else{
+      direction = "down";
+    }
   }
+  
   if (keyCode === 68) {
     direction = "right";
   }
@@ -1119,13 +1207,14 @@ function survivalMode() {
   translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
-
+  
   if(spawnEnemy) {
     let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
     enemies.push(enemy1);
     spawnEnemy = false;
   }
-
+  
+  
   if(millis() > eTimer + spawnRate) {
     spawnEnemy = !spawnEnemy;
     eTimer = millis();
