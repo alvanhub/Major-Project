@@ -15,6 +15,7 @@ let pBulletY = 400;
 let xCoord;
 let yCoord;
 let player;
+let playerSprite;
 let direction = "up";
 let gate = "closed";
 let playerPositions = [];
@@ -41,6 +42,7 @@ let pHit = false;
 let eHitY;
 let eHitX;
 let enemies = [];
+let dEnemySprite;
 let spawnPoints = [500,1300];
 
 let gameStatus = "menu";
@@ -55,6 +57,11 @@ let spawnRate = 2000;
 let spawnEnemy = true;
 let eTimer = 0;
 
+let enemyInfoGrid;
+let eCols = 7;
+let eRows = 4;
+let eGridSize = 320;
+
 
 
 
@@ -62,7 +69,10 @@ let eTimer = 0;
 function preload() {
   PracticeModeTXT = "assets/Levels/level.txt";
   PModeLines = loadStrings(PracticeModeTXT);
-  levelBackground = loadImage("assets/BlackholeBackground.jpg_large")
+  levelBackground = loadImage("assets/BlackholeBackground.jpg_large");
+
+  dEnemySprite = loadImage("assets/dashingEnemySprite.png");
+  playerSprite = loadImage("assets/spaceship_small_blue.png");
 }
 
 
@@ -72,8 +82,8 @@ function setup() {
   levelX = PModeLines[0].length;
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
+  enemyInfoGrid = createEnemyGrid(eCols, eRows);
   player = new Player();
-
 }
 
 function draw() {
@@ -114,6 +124,17 @@ function createEmptyGrid() {
   return emptyGrid;
 }
 
+function createEnemyGrid() {
+  let emptyGrid = [];
+  for (let x = 0; x < eCols; x++) {
+    emptyGrid.push([]);
+    for (let y = 0; y < eRows; y++) {
+      emptyGrid[x].push(0);
+    }
+  }
+  return emptyGrid;
+}
+
 function displayGrid(grid, rows, cols) {
   let cellSize = gridW / cols;
   for (let y = 0; y < rows; y++) {
@@ -139,6 +160,27 @@ function displayGrid(grid, rows, cols) {
         stroke(255);
       }
       rect(x*cellSize, y*cellSize, cellSize, cellSize);
+    }
+  }
+}
+
+function displayInfoGrid(grid, rows, cols) {
+  let cellSize = eGridSize / rows;
+  for (let y = 0; y < cols; y++) {
+    for (let x = 0; x < rows; x++) {
+      if (grid[y][x] === 0) {
+        noFill();
+        stroke(0);
+      }
+      if(grid[y][x]===1) {
+        noFill();
+        stroke(0);
+        push();
+        imageMode(CENTER);
+        image(dEnemySprite, x*cellSize+width-380, y*cellSize+200, cellSize, cellSize);
+        pop();
+      }
+      rect(x*cellSize+width-380, y*cellSize+200, cellSize, cellSize);
     }
   }
 }
@@ -191,10 +233,14 @@ function inputGrid() {
    create() {
      push();
      translate(this.playerX,this.playerY);
+     angleMode(RADIANS);
      playerAngle = atan2((mouseY - yT) - this.playerY , (mouseX - xT) - this.playerX);
      rotate(playerAngle);
+     angleMode(DEGREES);
+     rotate(90);
      fill(225);
-     rect(0,0,40,40);
+     imageMode(CENTER);
+     image(playerSprite,0,0,60,60);
      pop();
     }
     
@@ -440,9 +486,14 @@ function inputGrid() {
     playerPositions.push({x:this.playerX, y:this.playerY});
 
     if (gate === "open") {
-      for (let i = 0; i < playerPositions.length; i += 1) {
-        rect(playerPositions[i].x,playerPositions[i].y,40,40);
-      }
+      // for (let i = 0; i < playerPositions.length; i += 1) {
+      //   rect(playerPositions[i].x,playerPositions[i].y,40,40);
+      // }
+      push();
+      beginShape();
+      strokeWeight(10);
+      stroke(255);
+      vertex(this.playerX,this.playerY);
 
       if(this.shiftCoolDown >= 100) {
         if (direction === "up"){
@@ -458,10 +509,10 @@ function inputGrid() {
                 this.north -= this.shiftD;
                 this.south -= this.shiftD;
               }else{
-                this.playerY -= (this.shiftD-40);
-                pBulletY -= (this.shiftD-40);
-                this.north -= (this.shiftD-40);
-                this.south -= (this.shiftD-40);
+                this.playerY -= (this.shiftD-60);
+                pBulletY -= (this.shiftD-60);
+                this.north -= (this.shiftD-60);
+                this.south -= (this.shiftD-60);
               }
             }else{
               this.playerY -= (this.shiftD+60);
@@ -525,10 +576,10 @@ function inputGrid() {
                 this.east -= this.shiftD;
                 this.west -= this.shiftD;
               }else {
-                this.playerX -= (this.shiftD - 40);
-                pBulletX -= (this.shiftD - 40);
-                this.east -= (this.shiftD - 40);
-                this.west -= (this.shiftD - 40);
+                this.playerX -= (this.shiftD - 60);
+                pBulletX -= (this.shiftD - 60);
+                this.east -= (this.shiftD - 60);
+                this.west -= (this.shiftD - 60);
               }
             }else {
               this.playerX -= (this.shiftD + 60);
@@ -557,10 +608,10 @@ function inputGrid() {
                 this.east += this.shiftD;
                 this.west += this.shiftD;
               }else {
-                this.playerX += (this.shiftD - 40);
-                pBulletX += (this.shiftD - 40);
-                this.east += (this.shiftD - 40);
-                this.west += (this.shiftD - 40);
+                this.playerX += (this.shiftD - 60);
+                pBulletX += (this.shiftD - 60);
+                this.east += (this.shiftD - 60);
+                this.west += (this.shiftD - 60);
               }
             }else{
               this.playerX += (this.shiftD + 60);
@@ -579,49 +630,201 @@ function inputGrid() {
         }
 
         if(direction === 'up-right') {
-          this.playerY -= this.shiftD;
-          pBulletY -= this.shiftD;
-          this.north -= this.shiftD;
-          this.south -= this.shiftD;
-          this.playerX += this.shiftD;
-          pBulletX += this.shiftD;
-          this.east += this.shiftD;
-          this.west += this.shiftD;
+          if(yCoord <= 14) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[uCoord][rCoord+1]===0) {
+            if(grid[uCoord+1][rCoord]===0 && grid[uCoord+2][rCoord-1]===0) {
+              if(grid[uCoord-1][rCoord+2]===0) {
+                this.playerY -= this.shiftD;
+                pBulletY -= this.shiftD;
+                this.north -= this.shiftD;
+                this.south -= this.shiftD;
+                this.playerX += this.shiftD;
+                pBulletX += this.shiftD;
+                this.east += this.shiftD;
+                this.west += this.shiftD;
+              }else{
+                this.playerY -= (this.shiftD - 60);
+                pBulletY -= (this.shiftD - 60);
+                this.north -= (this.shiftD - 60);
+                this.south -= (this.shiftD - 60);
+                this.playerX += (this.shiftD - 60);
+                pBulletX += (this.shiftD - 60);
+                this.east += (this.shiftD - 60);
+                this.west += (this.shiftD - 60);
+              }
+            }else{
+              this.playerY -= (this.shiftD + 60);
+              pBulletY -= (this.shiftD + 60);
+              this.north -= (this.shiftD + 60);
+              this.south -= (this.shiftD + 60);
+              this.playerX += (this.shiftD + 60);
+              pBulletX += (this.shiftD + 60);
+              this.east += (this.shiftD + 60);
+              this.west += (this.shiftD + 60);
+            }
+          }else if(grid[uCoord+1][rCoord]===0) {
+            this.playerY -= (this.shiftD - 60);
+            pBulletY -= (this.shiftD - 60);
+            this.north -= (this.shiftD - 60);
+            this.south -= (this.shiftD - 60);
+            this.playerX += (this.shiftD - 60);
+            pBulletX += (this.shiftD - 60);
+            this.east += (this.shiftD - 60);
+            this.west += (this.shiftD - 60);
+          }
         }
 
         if(direction === 'up-left') {
-          this.playerY -= this.shiftD;
-          pBulletY -= this.shiftD;
-          this.north -= this.shiftD;
-          this.south -= this.shiftD;
-          this.playerX -= this.shiftD;
-          pBulletX -= this.shiftD;
-          this.east -= this.shiftD;
-          this.west -= this.shiftD;
+          if(yCoord <= 14) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[uCoord][lCoord]===0) {
+            if(grid[uCoord+1][lCoord+1]===0 && grid[uCoord+2][lCoord+2]===0) {
+              if(grid[uCoord-1][lCoord-1]===0) {
+                this.playerY -= this.shiftD;
+                pBulletY -= this.shiftD;
+                this.north -= this.shiftD;
+                this.south -= this.shiftD;
+                this.playerX -= this.shiftD;
+                pBulletX -= this.shiftD;
+                this.east -= this.shiftD;
+                this.west -= this.shiftD;
+              }else{
+                this.playerY -= (this.shiftD - 60);
+                pBulletY -= (this.shiftD - 60);
+                this.north -= (this.shiftD - 60);
+                this.south -= (this.shiftD - 60);
+                this.playerX -= (this.shiftD - 60);
+                pBulletX -= (this.shiftD - 60);
+                this.east -= (this.shiftD - 60);
+                this.west -= (this.shiftD - 60);
+              }
+            }else{
+              this.playerY -= (this.shiftD + 60);
+              pBulletY -= (this.shiftD + 60);
+              this.north -= (this.shiftD + 60);
+              this.south -= (this.shiftD + 60);
+              this.playerX -= (this.shiftD + 60);
+              pBulletX -= (this.shiftD + 60);
+              this.east -= (this.shiftD + 60);
+              this.west -= (this.shiftD + 60);
+            }
+          }else if(grid[uCoord+1][lCoord+1]===0) {
+            this.playerY -= (this.shiftD - 60);
+            pBulletY -= (this.shiftD - 60);
+            this.north -= (this.shiftD - 60);
+            this.south -= (this.shiftD - 60);
+            this.playerX -= (this.shiftD - 60);
+            pBulletX -= (this.shiftD - 60);
+            this.east -= (this.shiftD - 60);
+            this.west -= (this.shiftD - 60);
+          }
         }
 
         if(direction === 'down-left') {
-          this.playerY += this.shiftD;
-          pBulletY += this.shiftD;
-          this.north += this.shiftD;
-          this.south += this.shiftD;
-          this.playerX -= this.shiftD;
-          pBulletX -= this.shiftD;
-          this.east -= this.shiftD;
-          this.west -= this.shiftD;
+          if(yCoord >= 79) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[dCoord+1][lCoord]===0) {
+            if(grid[dCoord][lCoord+1]===0 && grid[dCoord-1][lCoord+2]===0) {
+              if(grid[dCoord+2][lCoord-1]===0) {
+                this.playerY += this.shiftD;
+                pBulletY += this.shiftD;
+                this.north += this.shiftD;
+                this.south += this.shiftD;
+                this.playerX -= this.shiftD;
+                pBulletX -= this.shiftD;
+                this.east -= this.shiftD;
+                this.west -= this.shiftD;
+              }else{
+                this.playerY += (this.shiftD - 60);
+                pBulletY += (this.shiftD - 60);
+                this.north += (this.shiftD - 60);
+                this.south += (this.shiftD - 60);
+                this.playerX -= (this.shiftD - 60);
+                pBulletX -= (this.shiftD - 60);
+                this.east -= (this.shiftD - 60);
+                this.west -= (this.shiftD - 60);
+              }
+            }else{
+              this.playerY += (this.shiftD + 60);
+              pBulletY += (this.shiftD + 60);
+              this.north += (this.shiftD + 60);
+              this.south += (this.shiftD + 60);
+              this.playerX -= (this.shiftD + 60);
+              pBulletX -= (this.shiftD + 60);
+              this.east -= (this.shiftD + 60);
+              this.west -= (this.shiftD + 60);
+            }
+          }else if(grid[dCoord][lCoord+1]===0) {
+            this.playerY += (this.shiftD - 60);
+            pBulletY += (this.shiftD - 60);
+            this.north += (this.shiftD - 60);
+            this.south += (this.shiftD - 60);
+            this.playerX -= (this.shiftD - 60);
+            pBulletX -= (this.shiftD - 60);
+            this.east -= (this.shiftD - 60);
+            this.west -= (this.shiftD - 60);
+          }
         }
 
         if(direction === 'down-right') {
-          this.playerY += this.shiftD;
-          pBulletY += this.shiftD;
-          this.north += this.shiftD;
-          this.south += this.shiftD;
-          this.playerX += this.shiftD;
-          pBulletX += this.shiftD;
-          this.east += this.shiftD;
-          this.west += this.shiftD;
+          if(yCoord >= 79) {
+            gate = 'closed';
+            shiftDid = false;
+          }
+          else if(grid[dCoord+1][rCoord+1]===0) {
+            if(grid[dCoord][rCoord]===0 && grid[dCoord-1][rCoord-1]===0) {
+              if(grid[dCoord+2][rCoord+2]===0) {
+                this.playerY += this.shiftD;
+                pBulletY += this.shiftD;
+                this.north += this.shiftD;
+                this.south += this.shiftD;
+                this.playerX += this.shiftD;
+                pBulletX += this.shiftD;
+                this.east += this.shiftD;
+                this.west += this.shiftD;
+              }else{
+                this.playerY += (this.shiftD - 60);
+                pBulletY += (this.shiftD - 60);
+                this.north += (this.shiftD - 60);
+                this.south += (this.shiftD - 60);
+                this.playerX += (this.shiftD - 60);
+                pBulletX += (this.shiftD - 60);
+                this.east += (this.shiftD - 60);
+                this.west += (this.shiftD - 60);
+              }
+            }else{
+              this.playerY += (this.shiftD + 60);
+              pBulletY += (this.shiftD + 60);
+              this.north += (this.shiftD + 60);
+              this.south += (this.shiftD + 60);
+              this.playerX += (this.shiftD + 60);
+              pBulletX += (this.shiftD + 60);
+              this.east += (this.shiftD + 60);
+              this.west += (this.shiftD + 60);
+            }
+          }else if(grid[dCoord][rCoord]===0) {
+            this.playerY += (this.shiftD - 60);
+            pBulletY += (this.shiftD - 60);
+            this.north += (this.shiftD - 60);
+            this.south += (this.shiftD - 60);
+            this.playerX += (this.shiftD - 60);
+            pBulletX += (this.shiftD - 60);
+            this.east += (this.shiftD - 60);
+            this.west += (this.shiftD - 60);
+          }
         }
       }
+
+      vertex(this.playerX, this.playerY);
+      endShape();
+      pop();
 
     this.playerY += this.yVelocity;
     this.south += this.yVelocity;
@@ -645,11 +848,11 @@ function inputGrid() {
       this.shiftCoolDown += 1;
     }
 
-    if (gate === "closed") {
-      if (playerPositions.length > maxPos) {
-        playerPositions.shift();
-      }
-    }
+    // if (gate === "closed") {
+    //   if (playerPositions.length > maxPos) {
+    //     playerPositions.shift();
+    //   }
+    // }
   }
 
   playerStats() {
@@ -784,10 +987,10 @@ function inputGrid() {
 
       if (reload === false) {
         if(this.bulletCoolDown < 700) {
-          this.bulletCoolDown++;
+          this.bulletCoolDown += 2;
         }
         if(mouseIsPressed) {
-          this.bulletCoolDown -= 10;
+          this.bulletCoolDown -= 20;
         }
       }else if(reload === true) {
         if (this.bulletCoolDown < 695) {
@@ -894,12 +1097,26 @@ function inputGrid() {
     }
   }
   
-  if (keyCode === 68) {
-    direction = "right";
+  if (keyIsDown(68)) {
+    if(keyIsDown(87)) {
+      direction = 'up-right'
+    }else if(keyIsDown(83)) {
+      direction = 'down-right'
+    }else{
+      direction = "right";
+    }
   }
-  if (keyCode === 65) {
-    direction = "left";
+
+  if (keyIsDown(65)) {
+    if(keyIsDown(87)) {
+      direction = 'up-left'
+    }else if(keyIsDown(83)) {
+      direction = 'down-left'
+    }else{
+      direction = "left";
+    }
   }
+
    if(keyCode === SHIFT){
     gate = "open"
   }
@@ -948,9 +1165,12 @@ class dashingEnemy {
   }
 
   create() {
+    push();
     fill(220);
     stroke(0);
-    rect(this.x, this.y, 25, 25);
+    imageMode(CENTER);
+    image(dEnemySprite, this.x, this.y, 50,50);
+    pop();
   }
 
   directionalInput() {
@@ -1166,7 +1386,7 @@ class dashingEnemy {
 }
 
 function practiceMode() {
-  background(levelBackground);
+  background(0);
   translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
@@ -1283,8 +1503,11 @@ function optionsMenu() {
   text("Shoot - Left Click",width/2-650,height/2+75);
   textSize(30);
   fill(0);
-  text("Dash - e",width/2-650,height/2+150);
+  text("Dash - shift",width/2-650,height/2+150);
   pop();
+
+  enemyInfoGrid[0][0]=1;
+  displayInfoGrid(enemyInfoGrid, eRows, eCols);
 }
 
 function deathMenu() {
@@ -1309,6 +1532,9 @@ function playButton() {
   textSize(50);
   fill(0);
   text("Play",width/2-300,height/2-100);
+  textSize(30);
+  fill(220);
+  text("click",width/2-300,height/2-50);
 }
 
 function optionsButton() {
@@ -1319,6 +1545,9 @@ function optionsButton() {
   textSize(50);
   fill(0);
   text("Options",width/2+300,height/2-100);
+  textSize(30);
+  fill(220);
+  text("click",width/2+300,height/2-50);
 }
 
 function practiceButton() {
