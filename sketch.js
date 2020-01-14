@@ -33,10 +33,50 @@ let uDifference;
 let dDifference;
 
 let PracticeModeTXT;
-let PModeLines;
+let pModeLines;
 let levelY;
 let levelX;
-let levelBackground;
+let BlackholeBackground;
+let megaManBackground;
+let b1;
+let b2;
+let b3;
+let b4;
+let b5;
+let b6;
+let b7;
+let b8;
+let b9;
+let b10;
+let b11;
+let b12;
+let b13;
+let b14;
+let b15;
+let b16;
+let b17;
+let b18;
+let b19;
+let b20;
+let b21;
+let b22;
+let b23;
+let b24;
+let b25;
+let b26;
+let b27;
+let b28;
+let b29;
+let b30;
+let b31;
+let b32;
+let b33;
+let b34;
+let b35;
+let b36;
+let b37;
+let b38;
+let b39;
 
 let pHit = false;
 let eHitY;
@@ -67,9 +107,37 @@ let eGridSize = 320;
 
 
 function preload() {
-  PracticeModeTXT = "assets/Levels/level.txt";
-  PModeLines = loadStrings(PracticeModeTXT);
-  levelBackground = loadImage("assets/BlackholeBackground.jpg_large");
+  PracticeModeTXT = "assets/Levels/level0.txt";
+  pModeLines = loadStrings(PracticeModeTXT);
+  BlackholeBackground = loadImage("assets/BlackholeBackground.jpg_large");
+  megaManBackground = loadImage("assets/shmup_stage/MegaManBackground.PNG");
+
+  b1 = loadImage("assets/shmup_stage/block1.PNG");
+  b2 = loadImage("assets/shmup_stage/block2.PNG");
+  b3 = loadImage("assets/shmup_stage/block3.PNG");
+  b4 = loadImage("assets/shmup_stage/block4.PNG");
+  b5 = loadImage("assets/shmup_stage/block5.PNG");
+  b6 = loadImage("assets/shmup_stage/block6.PNG");
+  b7 = loadImage("assets/shmup_stage/block7.PNG");
+  b8 = loadImage("assets/shmup_stage/block8.PNG");
+  b9 = loadImage("assets/shmup_stage/block9.PNG");
+  b10 = loadImage("assets/shmup_stage/block10.PNG");
+  b11 = loadImage("assets/shmup_stage/block11.PNG");
+  b12 = loadImage("assets/shmup_stage/block12.PNG");
+  b13 = loadImage("assets/shmup_stage/block13.PNG");
+  b14 = loadImage("assets/shmup_stage/block14.PNG");
+  b15 = loadImage("assets/shmup_stage/block15.PNG");
+  b16 = loadImage("assets/shmup_stage/block16.PNG");
+  b17 = loadImage("assets/shmup_stage/block17.PNG");
+  b18 = loadImage("assets/shmup_stage/block18.PNG");
+  b19 = loadImage("assets/shmup_stage/block19.PNG");
+  b20 = loadImage("assets/shmup_stage/block20.PNG");
+  b21 = loadImage("assets/shmup_stage/block21.PNG");
+  b22 = loadImage("assets/shmup_stage/block22.PNG");
+  b23 = loadImage("assets/shmup_stage/block23.PNG");
+  b24 = loadImage("assets/shmup_stage/block24.PNG");
+  b25 = loadImage("assets/shmup_stage/block25.PNG");
+  b27 = loadImage("assets/shmup_stage/block27.PNG");
 
   dEnemySprite = loadImage("assets/dashingEnemySprite.png");
   playerSprite = loadImage("assets/spaceship_small_blue.png");
@@ -78,8 +146,8 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
-  levelY = PModeLines.length;
-  levelX = PModeLines[0].length;
+  levelY = pModeLines.length;
+  levelX = pModeLines[0].length;
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   enemyInfoGrid = createEnemyGrid(eCols, eRows);
@@ -164,6 +232,65 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
+function displayLevelBlocks(grid, rows, cols) {
+  let cellSize = gridW / cols;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 3) {
+        if(pModeLines[y][x]==='A') {
+          push();
+          imageMode(CENTER);
+          image(b27,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='e') {
+          push();
+          imageMode(CENTER);
+          image(b14,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='j') {
+          push();
+          imageMode(CENTER);
+          image(b19,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='3') {
+          push();
+          imageMode(CENTER);
+          image(b3,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='6') {
+          push();
+          imageMode(CENTER);
+          image(b6,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='f') {
+          push();
+          imageMode(CENTER);
+          image(b15,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='l') {
+          push();
+          imageMode(CENTER);
+          image(b21,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else{
+          push();
+          fill(255);
+          noStroke();
+          rect(x*cellSize, y*cellSize, cellSize, cellSize);
+          pop();
+        }
+      }
+    }
+  }
+}
+
 function displayInfoGrid(grid, rows, cols) {
   let cellSize = eGridSize / rows;
   for (let y = 0; y < cols; y++) {
@@ -198,10 +325,10 @@ function windowResized() {
 function inputGrid() {
   for (let y = 0; y < levelY; y++) {
     for (let x = 0; x < levelX; x++) {
-      if (PModeLines[y][x] === '#') {
+      if (pModeLines[y][x] === '#') {
         grid[y][x] = 0;
       }
-      else if(PModeLines[y][x] === 'w') {
+      else{
         grid[y][x] = 3;
       }
     }
@@ -1386,9 +1513,10 @@ class dashingEnemy {
 }
 
 function practiceMode() {
-  background(0);
+  background(megaManBackground);
   translate(xT,yT);
-  displayGrid(grid, rows, cols);
+  // displayGrid(grid, rows, cols);
+  displayLevelBlocks(grid, rows, cols);
   inputGrid();
 
   
@@ -1423,7 +1551,7 @@ function practiceMode() {
 }
 
 function survivalMode() {
-  background(levelBackground);
+  background(BlackholeBackground);
   translate(xT,yT);
   displayGrid(grid, rows, cols);
   inputGrid();
