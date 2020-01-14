@@ -137,7 +137,21 @@ function preload() {
   b23 = loadImage("assets/shmup_stage/block23.PNG");
   b24 = loadImage("assets/shmup_stage/block24.PNG");
   b25 = loadImage("assets/shmup_stage/block25.PNG");
+  b26 = loadImage("assets/shmup_stage/block26.PNG");
   b27 = loadImage("assets/shmup_stage/block27.PNG");
+  b28 = loadImage("assets/shmup_stage/block28.PNG");
+  b29 = loadImage("assets/shmup_stage/block29.PNG");
+  b30 = loadImage("assets/shmup_stage/block30.PNG");
+  b31 = loadImage("assets/shmup_stage/block31.PNG");
+  b32 = loadImage("assets/shmup_stage/block32.PNG");
+  b33 = loadImage("assets/shmup_stage/block33.PNG");
+  b34 = loadImage("assets/shmup_stage/block34.PNG");
+  b35 = loadImage("assets/shmup_stage/block35.PNG");
+  b36 = loadImage("assets/shmup_stage/block36.PNG");
+  b37 = loadImage("assets/shmup_stage/block37.PNG");
+  b38 = loadImage("assets/shmup_stage/block38.PNG");
+  b39 = loadImage("assets/shmup_stage/block39.PNG");
+
 
   dEnemySprite = loadImage("assets/dashingEnemySprite.png");
   playerSprite = loadImage("assets/spaceship_small_blue.png");
@@ -237,7 +251,19 @@ function displayLevelBlocks(grid, rows, cols) {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 3) {
-        if(pModeLines[y][x]==='A') {
+        if(pModeLines[y][x]==='1') {
+          push();
+          imageMode(CENTER);
+          image(b1,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='q') {
+          push();
+          imageMode(CENTER);
+          image(b26,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='r') {
           push();
           imageMode(CENTER);
           image(b27,x*cellSize,y*cellSize,cellSize,cellSize);
@@ -277,6 +303,24 @@ function displayLevelBlocks(grid, rows, cols) {
           push();
           imageMode(CENTER);
           image(b21,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='B') {
+          push();
+          imageMode(CENTER);
+          image(b37,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='C') {
+          push();
+          imageMode(CENTER);
+          image(b38,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='D') {
+          push();
+          imageMode(CENTER);
+          image(b39,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
         else{
