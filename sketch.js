@@ -257,30 +257,6 @@ function displayLevelBlocks(grid, rows, cols) {
           image(b1,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='q') {
-          push();
-          imageMode(CENTER);
-          image(b26,x*cellSize,y*cellSize,cellSize,cellSize);
-          pop();
-        }
-        else if(pModeLines[y][x]==='r') {
-          push();
-          imageMode(CENTER);
-          image(b27,x*cellSize,y*cellSize,cellSize,cellSize);
-          pop();
-        }
-        else if(pModeLines[y][x]==='e') {
-          push();
-          imageMode(CENTER);
-          image(b14,x*cellSize,y*cellSize,cellSize,cellSize);
-          pop();
-        }
-        else if(pModeLines[y][x]==='j') {
-          push();
-          imageMode(CENTER);
-          image(b19,x*cellSize,y*cellSize,cellSize,cellSize);
-          pop();
-        }
         else if(pModeLines[y][x]==='3') {
           push();
           imageMode(CENTER);
@@ -293,16 +269,82 @@ function displayLevelBlocks(grid, rows, cols) {
           image(b6,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
+        else if(pModeLines[y][x]==='c') {
+          push();
+          imageMode(CENTER);
+          image(b12,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='d') {
+          push();
+          imageMode(CENTER);
+          image(b13,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='e') {
+          push();
+          imageMode(CENTER);
+          image(b14,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
         else if(pModeLines[y][x]==='f') {
           push();
           imageMode(CENTER);
           image(b15,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
+        else if(pModeLines[y][x]==='j') {
+          push();
+          imageMode(CENTER);
+          image(b19,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
         else if(pModeLines[y][x]==='l') {
           push();
           imageMode(CENTER);
           image(b21,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='o') {
+          push();
+          imageMode(CENTER);
+          image(b24,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='q') {
+          push();
+          imageMode(CENTER);
+          image(b26,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='r') {
+          push();
+          imageMode(CENTER);
+          image(b27,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='s') {
+          push();
+          imageMode(CENTER);
+          image(b28,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='t') {
+          push();
+          imageMode(CENTER);
+          image(b29,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='u') {
+          push();
+          imageMode(CENTER);
+          image(b30,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='v') {
+          push();
+          imageMode(CENTER);
+          image(b31,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
         else if(pModeLines[y][x]==='B') {
