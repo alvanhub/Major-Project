@@ -77,6 +77,11 @@ let b36;
 let b37;
 let b38;
 let b39;
+let b40;
+let b41;
+let b42;
+let b43;
+let b44;
 
 let pHit = false;
 let eHitY;
@@ -151,6 +156,11 @@ function preload() {
   b37 = loadImage("assets/shmup_stage/block37.PNG");
   b38 = loadImage("assets/shmup_stage/block38.PNG");
   b39 = loadImage("assets/shmup_stage/block39.PNG");
+  b40 = loadImage("assets/shmup_stage/block40.PNG");
+  b41 = loadImage("assets/shmup_stage/block41.PNG");
+  b42 = loadImage("assets/shmup_stage/block42.PNG");
+  b43 = loadImage("assets/shmup_stage/block43.PNG");
+  b44 = loadImage("assets/shmup_stage/block44.PNG");
 
 
   dEnemySprite = loadImage("assets/dashingEnemySprite.png");
@@ -293,6 +303,18 @@ function displayLevelBlocks(grid, rows, cols) {
           image(b15,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
+        else if(pModeLines[y][x]==='g') {
+          push();
+          imageMode(CENTER);
+          image(b16,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='h') {
+          push();
+          imageMode(CENTER);
+          image(b17,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
         else if(pModeLines[y][x]==='j') {
           push();
           imageMode(CENTER);
@@ -305,10 +327,28 @@ function displayLevelBlocks(grid, rows, cols) {
           image(b21,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
+        else if(pModeLines[y][x]==='m') {
+          push();
+          imageMode(CENTER);
+          image(b22,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='n') {
+          push();
+          imageMode(CENTER);
+          image(b23,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
         else if(pModeLines[y][x]==='o') {
           push();
           imageMode(CENTER);
           image(b24,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='p') {
+          push();
+          imageMode(CENTER);
+          image(b25,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
         else if(pModeLines[y][x]==='q') {
@@ -347,6 +387,24 @@ function displayLevelBlocks(grid, rows, cols) {
           image(b31,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
+        else if(pModeLines[y][x]==='w') {
+          push();
+          imageMode(CENTER);
+          image(b32,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='x') {
+          push();
+          imageMode(CENTER);
+          image(b33,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='y') {
+          push();
+          imageMode(CENTER);
+          image(b34,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
         else if(pModeLines[y][x]==='B') {
           push();
           imageMode(CENTER);
@@ -363,6 +421,18 @@ function displayLevelBlocks(grid, rows, cols) {
           push();
           imageMode(CENTER);
           image(b39,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='E') {
+          push();
+          imageMode(CENTER);
+          image(b40,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(pModeLines[y][x]==='F') {
+          push();
+          imageMode(CENTER);
+          image(b41,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
         else{
@@ -1166,9 +1236,18 @@ function inputGrid() {
     pop();
 
     push();
-    textSize(50)
+    textSize(50);
+    fill(225);
     text(wave, this.barX+400, this.barY - 700);
     pop();
+
+    if(gameStatus === 'practice') {
+      push();
+      textSize(40);
+      fill(225);
+      text("Press R to spawn enemy", this.barX+900, this.barY - 100);
+      pop();
+    }
 
     if(gameStatus === 'practice') {
       if(this.health < 800) {
@@ -1382,7 +1461,7 @@ class dashingEnemy {
     fill(220);
     stroke(0);
     imageMode(CENTER);
-    image(dEnemySprite, this.x, this.y, 50,50);
+    image(dEnemySprite, this.x, this.y, 65,65);
     pop();
   }
 
@@ -1637,9 +1716,10 @@ function practiceMode() {
 }
 
 function survivalMode() {
-  background(BlackholeBackground);
+  background(megaManBackground);
   translate(xT,yT);
-  displayGrid(grid, rows, cols);
+  // displayGrid(grid, rows, cols);
+  displayLevelBlocks(grid, rows, cols);
   inputGrid();
   
   if(spawnEnemy) {
