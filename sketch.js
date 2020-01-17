@@ -518,24 +518,22 @@ function inputGrid() {
      angleMode(RADIANS);
 
 
-     if(enemies.length > 0) {
-      for (let i = 0; i < enemies.length; i++) {
-        if (enemies.length === 1) {
-          this.targetX = enemies[i].x;
-          this.targetY = enemies[i].y;
-        }else{
-          if(abs(enemies[i].x) + abs(enemies[i].y) < abs(this.targetX) + abs(this.targetY) ) {
-            this.targetY = enemies[i].y;
-            this.targetX = enemies[i].x;
-          }
-        }
-      }
-      playerAngle = atan2((this.targetY- yT) - this.playerY , (this.targetX - xT) - this.playerX);
-      rotate(playerAngle);
-    }else{
-      playerAngle = atan2((mouseY- yT) - this.playerY , (mouseX - xT) - this.playerX);
+    //  if(enemies.length > 0) {
+    //   for (let i = 0; i < enemies.length; i++) {
+    //     if (enemies.length === 1) {
+    //       this.targetX = enemies[i].x;
+    //       this.targetY = enemies[i].y;
+    //     }
+    //   }
+    //   playerAngle = atan2(this.targetY - this.playerY , this.targetX - this.playerX);
+    //   rotate(playerAngle);
+    // }else{
+    //   playerAngle = atan2((mouseY- yT) - this.playerY , (mouseX - xT) - this.playerX);
+    //  rotate(playerAngle);
+    // }
+
+    playerAngle = atan2((mouseY- yT) - this.playerY , (mouseX - xT) - this.playerX);
      rotate(playerAngle);
-    }
 
      
 
@@ -1700,7 +1698,10 @@ class dashingEnemy {
 function practiceMode() {
   background(megaManBackground);
   translate(xT,yT);
-  // displayGrid(grid, rows, cols);
+
+  if(displayHitBox){
+    displayGrid(grid, rows, cols);
+  }
   displayLevelBlocks(grid, rows, cols);
   inputGrid();
 
@@ -1830,6 +1831,7 @@ function optionsMenu() {
     fill(255,0,0);
   }
   noStroke();
+  rectMode(CENTER);
   rect(width/2-625,height/2+225,40,40);
   pop();
 
@@ -1913,10 +1915,14 @@ function mouseCheck() {
         gameStatus = 'survival';
       }
     }
-    else if(gameStatus === 'options') {
-      if (mouseX > width/2 - 625 && mouseX < width/2 - 585 && mouseY > height/2 + 225 && mouseY < height/2 + 185) {
-        displayHitBox = !displayHitBox;
-      }
-    } 
   }
+}
+
+// rect(width/2-625,height/2+225,40,40);
+function mouseClicked() {
+  if(gameStatus === 'options') {
+    if (mouseX > width/2 - 625-20 && mouseX < width/2 - 625+20 && mouseY > height/2 + 225-20 && mouseY < height/2 + 225+20) {
+      displayHitBox = !displayHitBox;
+    }
+  } 
 }
