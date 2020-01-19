@@ -12,6 +12,8 @@ let gridW = 1750;
 
 let pBulletX = 650;
 let pBulletY = 400;
+let pTargetX;
+let pTargetY;
 let xCoord;
 let yCoord;
 let player;
@@ -100,6 +102,7 @@ let currentKills = 0;
 let totalKills = 0;
 let spawnRate = 2000;
 let spawnEnemy = true;
+let switchSpawn = false;
 let eTimer = 0;
 
 let enemyInfoGrid;
@@ -108,6 +111,9 @@ let eRows = 4;
 let eGridSize = 320;
 
 let displayHitBox = false;
+let autoAim = false;
+
+let nextScreen = true;
 
 
 
@@ -183,16 +189,16 @@ function draw() {
     background(0);
     playButton();
     optionsButton();
-    mouseCheck();
+    
   }else if(gameStatus === 'options') {
     optionsMenu();
-    mouseCheck();
+    infoBox();
   }
   else if (gameStatus === 'gamemodes') {
     background(0);
     practiceButton();
     survivalButton();
-    mouseCheck();
+    
   }
   else if(gameStatus === 'practice') {
     practiceMode();
@@ -446,6 +452,8 @@ function displayLevelBlocks(grid, rows, cols) {
 
 function displayInfoGrid(grid, rows, cols) {
   let cellSize = eGridSize / rows;
+  push();
+  translate(width-380, 200);
   for (let y = 0; y < cols; y++) {
     for (let x = 0; x < rows; x++) {
       if (grid[y][x] === 0) {
@@ -457,23 +465,25 @@ function displayInfoGrid(grid, rows, cols) {
         stroke(0);
         push();
         imageMode(CENTER);
-        image(dEnemySprite, x*cellSize+width-380, y*cellSize+200, cellSize, cellSize);
+        image(dEnemySprite, x*cellSize, y*cellSize, cellSize, cellSize);
         pop();
       }
-      rect(x*cellSize+width-380, y*cellSize+200, cellSize, cellSize);
+      rect(x*cellSize, y*cellSize, cellSize, cellSize);
     }
   }
+  pop();
 }
 
 
-function windowResized() {
-  if (windowWidth > windowHeight) {
-    createCanvas(windowHeight, windowHeight);
-  }
-  else {
-    createCanvas(windowWidth, windowWidth);
-  }
-}
+
+// function windowResized() {
+//   if (windowWidth > windowHeight) {
+//     createCanvas(windowHeight, windowHeight);
+//   }
+//   else {
+//     createCanvas(windowWidth, windowWidth);
+//   }
+// }
 
 function inputGrid() {
   for (let y = 0; y < levelY; y++) {
@@ -517,25 +527,43 @@ function inputGrid() {
      translate(this.playerX,this.playerY);
      angleMode(RADIANS);
 
+     if(enemies.length > 0) {
+       if(autoAim) {
+         for (let i = 0; i < enemies.length; i++) {
+           if (enemies.length === 1) {
+             this.targetX = enemies[i].x;
+             this.targetY = enemies[i].y;
+             pTargetX = enemies[i].x;
+             pTargetY = enemies[i].y;
+           }else {
+             let xDifference = abs(this.playerX - enemies[i].x);
+             let yDifference = abs(this.playerY - enemies[i].y);
+             let targetDifferenceY = abs(this.playerY - this.targetY);
+             let targetDifferenceX = abs(this.playerX - this.targetX);
 
-    //  if(enemies.length > 0) {
-    //   for (let i = 0; i < enemies.length; i++) {
-    //     if (enemies.length === 1) {
-    //       this.targetX = enemies[i].x;
-    //       this.targetY = enemies[i].y;
-    //     }
-    //   }
-    //   playerAngle = atan2(this.targetY - this.playerY , this.targetX - this.playerX);
-    //   rotate(playerAngle);
-    // }else{
-    //   playerAngle = atan2((mouseY- yT) - this.playerY , (mouseX - xT) - this.playerX);
-    //  rotate(playerAngle);
-    // }
+             if(xDifference + yDifference < targetDifferenceX + targetDifferenceY) {
+               this.targetX = enemies[i].x;
+               this.targetY = enemies[i].y;
+               pTargetX = enemies[i].x;
+               pTargetY = enemies[i].y;
+             }
+           }
+         }
+       }else{
+        this.targetX = (mouseX - xT);
+        this.targetY = (mouseY - yT);
+        pTargetX = (mouseX - xT);
+        pTargetY = (mouseY - yT);
+       }
+     }else{
+      this.targetX = (mouseX - xT);
+      this.targetY = (mouseY - yT);
+      pTargetX = (mouseX - xT);
+      pTargetY = (mouseY - yT);
+     }
 
-    playerAngle = atan2((mouseY- yT) - this.playerY , (mouseX - xT) - this.playerX);
-     rotate(playerAngle);
-
-     
+    playerAngle = atan2(this.targetY - this.playerY , this.targetX - this.playerX);
+    rotate(playerAngle);
 
      angleMode(DEGREES);
      rotate(90);
@@ -555,7 +583,7 @@ function inputGrid() {
 
      if( (yCoord <= 32 && yCoord >= 22 && xCoord <= 32 && xCoord >= 22) || (yCoord >= 65 && yCoord <= 75 && xCoord <= 32 && xCoord >= 22) 
           || (yCoord >= 65 && yCoord <= 75 && xCoord >= 65 && xCoord <= 75) || (yCoord <= 32 && yCoord >= 22 && xCoord >= 65 && xCoord <= 75) ) {
-            spawnEnemy = false;
+            switchSpawn = true;
      }
 
      if (grid[yCoord][xCoord] === 0) {
@@ -1279,8 +1307,14 @@ function inputGrid() {
         if(this.bulletCoolDown < 700) {
           this.bulletCoolDown++;
         }
-        if(mouseIsPressed) {
-          this.bulletCoolDown -= 10;
+        if(!autoAim) {
+          if(mouseIsPressed) {
+            this.bulletCoolDown -= 20;
+          }
+        }else{
+          if(keyIsDown(32)) {
+            this.bulletCoolDown -= 20;
+          }
         }
       }else if(reload === true) {
         if (this.bulletCoolDown < 695) {
@@ -1299,8 +1333,14 @@ function inputGrid() {
         if(this.bulletCoolDown < 700) {
           this.bulletCoolDown += 2;
         }
-        if(mouseIsPressed) {
-          this.bulletCoolDown -= 20;
+        if(!autoAim) {
+          if(mouseIsPressed) {
+            this.bulletCoolDown -= 20;
+          }
+        }else{
+          if(keyIsDown(32)) {
+            this.bulletCoolDown -= 20;
+          }
         }
       }else if(reload === true) {
         if (this.bulletCoolDown < 695) {
@@ -1322,14 +1362,16 @@ function inputGrid() {
 
 
  class playerBullet {
-   constructor(x,y,hit) {
+   constructor(x,y,hit,tX,tY) {
      this.x = x;
      this.y = y;
      this.hit = hit;
      this.speed = 55;
      this.oldX = this.x;
      this.oldY = this.y;
-     this.bulletAngle = atan2((mouseY - yT)- this.y, (mouseX - xT) - this.x);
+     this.targetX = tX;
+     this.targetY = tY;
+     this.bulletAngle = atan2(this.targetY - this.y, this.targetX - this.x);
    }
 
    update() {
@@ -1377,12 +1419,15 @@ function inputGrid() {
  
 
  function mousePressed() {
-   if(reload === false) {
-    if(gameStatus === 'practice' || gameStatus === 'survival') {
-      myB = new playerBullet(pBulletX,pBulletY,false);
-      bullets.push(myB);
+   if(!autoAim) {
+    if(reload === false) {
+      if(gameStatus === 'practice' || gameStatus === 'survival') {
+        myB = new playerBullet(pBulletX,pBulletY,false,pTargetX,pTargetY);
+        bullets.push(myB);
+      }
     }
   }
+  console.log(mouseY);
  }
 
  
@@ -1427,7 +1472,18 @@ function inputGrid() {
     }
   }
 
-   if(keyCode === SHIFT){
+  if(keyCode === 32) {
+    if(autoAim) {
+      if(reload === false) {
+        if(gameStatus === 'practice' || gameStatus === 'survival') {
+          myB = new playerBullet(pBulletX,pBulletY,false,pTargetX,pTargetY);
+          bullets.push(myB);
+        }
+      }
+    }
+  }
+
+  if(keyCode === SHIFT){
     gate = "open"
   }
   if(key === 'r'){
@@ -1742,6 +1798,12 @@ function survivalMode() {
   // displayGrid(grid, rows, cols);
   displayLevelBlocks(grid, rows, cols);
   inputGrid();
+
+  if(switchSpawn) {
+    spawnPoints = [700,700];
+  }else{
+    spawnPoints = [500,1300];
+  }
   
   if(spawnEnemy) {
     let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
@@ -1800,7 +1862,9 @@ function optionsMenu() {
   textSize(35);
   fill(0);
   text("Controls",width/2-600,height/2-300);
-  textAlign(LEFT);
+  textSize(35);
+  fill(0);
+  text("Enemy Info",width-370,height/2-300);
   textSize(30);
   fill(0);
   text("Move Up - w",width/2-650,height/2-225);
@@ -1815,10 +1879,20 @@ function optionsMenu() {
   text("Move Left - a",width/2-650,height/2);
   textSize(30);
   fill(0);
-  text("Shoot - Left Click",width/2-650,height/2+75);
+  if(!autoAim) {
+    text("Shoot - Left Click",width/2-650,height/2+75);
+  }else{
+    text("Shoot - Spacebar",width/2-650,height/2+75);
+  }
   textSize(30);
   fill(0);
   text("Dash - shift",width/2-650,height/2+150);
+  textSize(25);
+  fill(0);
+  text("Display Hitbox's",width/2-580,height/2+225);
+  textSize(25);
+  fill(0);
+  text("Enable AutoAim",width/2-580,height/2+285);
   pop();
 
   push();
@@ -1833,10 +1907,54 @@ function optionsMenu() {
   noStroke();
   rectMode(CENTER);
   rect(width/2-625,height/2+225,40,40);
+
+  fill(0);
+  noStroke();
+  rect(width/2-625,height/2+285,50,50);
+  if(autoAim) {
+    fill(0,255,0);
+  }else{
+    fill(255,0,0);
+  }
+  noStroke();
+  rect(width/2-625,height/2+285,40,40);
   pop();
 
   enemyInfoGrid[0][0]=1;
   displayInfoGrid(enemyInfoGrid, eRows, eCols);
+}
+
+function infoBox() {
+  if(gameStatus === 'options') {
+    if(mouseX > 1010 && mouseX < 1100 && mouseY > 160 && mouseY < 240) {
+      push();
+      rectMode(CORNER);
+      fill(255);
+      stroke(0);
+      rect(mouseX,mouseY,400,200);
+      imageMode(CORNER);
+      image(dEnemySprite,mouseX+20,mouseY,100,100);
+      textAlign(LEFT);
+      textSize(20);
+      fill(0);
+      text("Dashing enemy",mouseX + 170,mouseY + 20);
+      textSize(20);
+      fill(0);
+      text("Health: 5",mouseX + 170,mouseY + 50);
+      textSize(20);
+      fill(0);
+      text("Damage: 10",mouseX + 170,mouseY + 80);
+      textSize(20);
+      fill(0);
+      text("Description",mouseX + 20,mouseY + 120);
+      textSize(15);
+      fill(0);
+      text("This enemy will follow the player around and once it gets",mouseX + 20,mouseY + 140);
+      text("close enough it will dash towards the player, damging ",mouseX + 20,mouseY + 160);
+      text("them and knocking them back",mouseX + 20,mouseY + 180);
+      pop();
+    }
+  }
 }
 
 function deathMenu() {
@@ -1892,37 +2010,44 @@ function practiceButton() {
 function survivalButton() {
   rectMode(CENTER);
   fill(255);
-  rect(width/2 - 300, height/2 + 100, 400, 150);
+  rect(width/2 - 300, height/2 - 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
   fill(0);
-  text("Survival",width/2-300,height/2+100);
+  text("Survival",width/2-300,height/2-100);
 }
 
-function mouseCheck() {
-  if (mouseIsPressed) {
-    if (gameStatus === 'menu') {
+function mouseClicked() {
+  nextScreen = true;
+  if (gameStatus === 'menu') {
+    if(nextScreen) {
       if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
         gameStatus = 'gamemodes';
+        nextScreen = false;
       }else if(mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25){
         gameStatus = 'options'
-      }
-    }
-    else if (gameStatus === 'gamemodes') {
-      if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
-        gameStatus = 'practice';
-       }else if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 + 25 && mouseY < height/2 + 175) {
-        gameStatus = 'survival';
+        nextScreen = false;
       }
     }
   }
-}
+  if (gameStatus === 'gamemodes') {
+    if(nextScreen) {
+      if (mouseX > width/2 + 100 && mouseX < width/2 + 500 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
+        gameStatus = 'practice';
+        nextScreen = false;
+      }else if (mouseX > width/2 - 500 && mouseX < width/2 - 100 && mouseY > height/2 - 175 && mouseY < height/2 - 25) {
+        gameStatus = 'survival';
+        nextScreen = false;
+      }
+    }
+  }
 
-// rect(width/2-625,height/2+225,40,40);
-function mouseClicked() {
   if(gameStatus === 'options') {
     if (mouseX > width/2 - 625-20 && mouseX < width/2 - 625+20 && mouseY > height/2 + 225-20 && mouseY < height/2 + 225+20) {
       displayHitBox = !displayHitBox;
+    }
+    if (mouseX > width/2 - 625-20 && mouseX < width/2 - 625+20 && mouseY > height/2 + 285-20 && mouseY < height/2 + 285+20) {
+      autoAim = !autoAim;
     }
   } 
 }

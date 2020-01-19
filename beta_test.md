@@ -15,3 +15,16 @@
     - provide a way to learn about an enemy. what their healt is, what they do
     - this game seems like it is capable of having powerups. They could be things 
       that spawn on the map or things you buy from a store (just an idea)
+- changes made:
+    - added enemy description
+    - added explanation to red button's
+    - 
+
+
+## beta test 3 by Adam
+- feedback given: 
+    - add another weapon for player
+    - make the level area changeable to make it smaller and harder
+    - make it so that when a wave is cleared in survival mode, the player regains health
+    - make auto shooting
+    - 
