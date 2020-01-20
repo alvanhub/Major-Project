@@ -18,13 +18,17 @@
 - changes made:
     - added enemy description
     - added explanation to red button's
-    - 
+    - enemies can now spawn in practice after moving
+    - can now play multiple games without refreshing
+    - added info on how to leave options and other screens
 
 
 ## beta test 3 by Adam
 - feedback given: 
-    - add another weapon for player
-    - make the level area changeable to make it smaller and harder
-    - make it so that when a wave is cleared in survival mode, the player regains health
-    - make auto shooting
+    - maybe add another weapon for player
+    - maybe make the level area changeable to make it smaller and harder
+    - maybe make it so that when a wave is cleared in survival mode, the player regains health
+    - maybe make auto shooting
     - 
+- changes made:
+    - made auto aim a feature

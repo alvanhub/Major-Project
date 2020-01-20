@@ -20,8 +20,6 @@ let player;
 let playerSprite;
 let direction = "up";
 let gate = "closed";
-let playerPositions = [];
-let maxPos = 7;
 let playerAngle;
 let bulletAngle;
 let bullets = [];
@@ -34,11 +32,13 @@ let lDifference;
 let uDifference;
 let dDifference;
 
-let PracticeModeTXT;
-let pModeLines;
+let practiceModeTXT;
+let survivalModeTXT;
+let pLines;
+let sLines;
 let levelY;
 let levelX;
-let BlackholeBackground;
+let blackHoleBackground;
 let megaManBackground;
 let b1;
 let b2;
@@ -90,7 +90,7 @@ let eHitY;
 let eHitX;
 let enemies = [];
 let dEnemySprite;
-let spawnPoints = [500,1300];
+let spawnPoints = [610,1100];
 
 let gameStatus = "menu";
 
@@ -100,9 +100,10 @@ let wave = 1;
 let waveKills = 5;
 let currentKills = 0;
 let totalKills = 0;
-let spawnRate = 2000;
+let highestWave;
+let highestKills;
+let spawnRate = 3500;
 let spawnEnemy = true;
-let switchSpawn = false;
 let eTimer = 0;
 
 let enemyInfoGrid;
@@ -112,16 +113,20 @@ let eGridSize = 320;
 
 let displayHitBox = false;
 let autoAim = false;
+let optionsVisual;
 
 let nextScreen = true;
 
 
 
 function preload() {
-  PracticeModeTXT = "assets/Levels/level0.txt";
-  pModeLines = loadStrings(PracticeModeTXT);
-  BlackholeBackground = loadImage("assets/BlackholeBackground.jpg_large");
+  practiceModeTXT = "assets/Levels/level0.txt";
+  survivalModeTXT = "assets/Levels/level1.txt";
+  pLines = loadStrings(practiceModeTXT);
+  sLines = loadStrings(survivalModeTXT);
+  blackHoleBackground = loadImage("assets/BlackholeBackground.jpg_large");
   megaManBackground = loadImage("assets/shmup_stage/MegaManBackground.PNG");
+  optionsVisual = loadImage("assets/options_Visual.png");
 
   b1 = loadImage("assets/shmup_stage/block1.PNG");
   b2 = loadImage("assets/shmup_stage/block2.PNG");
@@ -176,12 +181,24 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth,windowHeight);
-  levelY = pModeLines.length;
-  levelX = pModeLines[0].length;
+  levelY = pLines.length;
+  levelX = pLines[0].length;
   rectMode(CENTER);
   grid = createEmptyGrid(cols, rows);
   enemyInfoGrid = createEnemyGrid(eCols, eRows);
   player = new Player();
+
+  if(getItem("highestKills") !== null) {
+    highestKills = getItem("highestKills");
+  }else{
+    highestKills = 0;
+  }
+
+  if(getItem("highestWave") !== null) {
+    highestWave = getItem("highestWave");
+  }else{
+    highestWave = 0;
+  }
 }
 
 function draw() {
@@ -198,16 +215,21 @@ function draw() {
     background(0);
     practiceButton();
     survivalButton();
-    
+    reset();
   }
   else if(gameStatus === 'practice') {
-    practiceMode();
+      practiceMode();
   }
   else if(gameStatus === 'survival') {
     survivalMode();
   }
-  else if(gameStatus = 'dead') {
+  else if(gameStatus === 'dead') {
     deathMenu(); 
+    retryButton();
+  }
+  else if(gameStatus === 'buffer') {
+    reset();
+    gameStatus = 'survival';
   }
   
 }
@@ -259,183 +281,273 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
-function displayLevelBlocks(grid, rows, cols) {
+function displayLevelBlocks(grid, rows, cols, lines) {
   let cellSize = gridW / cols;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === 3) {
-        if(pModeLines[y][x]==='1') {
+        if(lines[y][x]==='1') {
           push();
           imageMode(CENTER);
           image(b1,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='3') {
+        else if(lines[y][x]==='2') {
+          push();
+          imageMode(CENTER);
+          image(b2,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='3') {
           push();
           imageMode(CENTER);
           image(b3,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='6') {
+        else if(lines[y][x]==='4') {
+          push();
+          imageMode(CENTER);
+          image(b4,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='5') {
+          push();
+          imageMode(CENTER);
+          image(b5,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='6') {
           push();
           imageMode(CENTER);
           image(b6,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='c') {
+        else if(lines[y][x]==='7') {
+          push();
+          imageMode(CENTER);
+          image(b7,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='8') {
+          push();
+          imageMode(CENTER);
+          image(b8,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='9') {
+          push();
+          imageMode(CENTER);
+          image(b9,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='a') {
+          push();
+          imageMode(CENTER);
+          image(b10,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='b') {
+          push();
+          imageMode(CENTER);
+          image(b11,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='c') {
           push();
           imageMode(CENTER);
           image(b12,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='d') {
+        else if(lines[y][x]==='d') {
           push();
           imageMode(CENTER);
           image(b13,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='e') {
+        else if(lines[y][x]==='e') {
           push();
           imageMode(CENTER);
           image(b14,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='f') {
+        else if(lines[y][x]==='f') {
           push();
           imageMode(CENTER);
           image(b15,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='g') {
+        else if(lines[y][x]==='g') {
           push();
           imageMode(CENTER);
           image(b16,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='h') {
+        else if(lines[y][x]==='h') {
           push();
           imageMode(CENTER);
           image(b17,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='j') {
+        else if(lines[y][x]==='i') {
+          push();
+          imageMode(CENTER);
+          image(b18,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='j') {
           push();
           imageMode(CENTER);
           image(b19,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='l') {
+        else if(lines[y][x]==='k') {
+          push();
+          imageMode(CENTER);
+          image(b20,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='l') {
           push();
           imageMode(CENTER);
           image(b21,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='m') {
+        else if(lines[y][x]==='m') {
           push();
           imageMode(CENTER);
           image(b22,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='n') {
+        else if(lines[y][x]==='n') {
           push();
           imageMode(CENTER);
           image(b23,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='o') {
+        else if(lines[y][x]==='o') {
           push();
           imageMode(CENTER);
           image(b24,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='p') {
+        else if(lines[y][x]==='p') {
           push();
           imageMode(CENTER);
           image(b25,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='q') {
+        else if(lines[y][x]==='q') {
           push();
           imageMode(CENTER);
           image(b26,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='r') {
+        else if(lines[y][x]==='r') {
           push();
           imageMode(CENTER);
           image(b27,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='s') {
+        else if(lines[y][x]==='s') {
           push();
           imageMode(CENTER);
           image(b28,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='t') {
+        else if(lines[y][x]==='t') {
           push();
           imageMode(CENTER);
           image(b29,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='u') {
+        else if(lines[y][x]==='u') {
           push();
           imageMode(CENTER);
           image(b30,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='v') {
+        else if(lines[y][x]==='v') {
           push();
           imageMode(CENTER);
           image(b31,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='w') {
+        else if(lines[y][x]==='w') {
           push();
           imageMode(CENTER);
           image(b32,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='x') {
+        else if(lines[y][x]==='x') {
           push();
           imageMode(CENTER);
           image(b33,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='y') {
+        else if(lines[y][x]==='y') {
           push();
           imageMode(CENTER);
           image(b34,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='B') {
+        else if(lines[y][x]==='z') {
+          push();
+          imageMode(CENTER);
+          image(b35,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='A') {
+          push();
+          imageMode(CENTER);
+          image(b36,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='B') {
           push();
           imageMode(CENTER);
           image(b37,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='C') {
+        else if(lines[y][x]==='C') {
           push();
           imageMode(CENTER);
           image(b38,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='D') {
+        else if(lines[y][x]==='D') {
           push();
           imageMode(CENTER);
           image(b39,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='E') {
+        else if(lines[y][x]==='E') {
           push();
           imageMode(CENTER);
           image(b40,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
-        else if(pModeLines[y][x]==='F') {
+        else if(lines[y][x]==='F') {
           push();
           imageMode(CENTER);
           image(b41,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='G') {
+          push();
+          imageMode(CENTER);
+          image(b42,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='H') {
+          push();
+          imageMode(CENTER);
+          image(b43,x*cellSize,y*cellSize,cellSize,cellSize);
+          pop();
+        }
+        else if(lines[y][x]==='I') {
+          push();
+          imageMode(CENTER);
+          image(b44,x*cellSize,y*cellSize,cellSize,cellSize);
           pop();
         }
         else{
@@ -475,20 +587,10 @@ function displayInfoGrid(grid, rows, cols) {
 }
 
 
-
-// function windowResized() {
-//   if (windowWidth > windowHeight) {
-//     createCanvas(windowHeight, windowHeight);
-//   }
-//   else {
-//     createCanvas(windowWidth, windowWidth);
-//   }
-// }
-
-function inputGrid() {
+function inputGrid(text) {
   for (let y = 0; y < levelY; y++) {
     for (let x = 0; x < levelX; x++) {
-      if (pModeLines[y][x] === '#') {
+      if (text[y][x] === '#') {
         grid[y][x] = 0;
       }
       else{
@@ -498,7 +600,6 @@ function inputGrid() {
   }
 }
 
- 
 
  class Player {
    constructor() {
@@ -526,16 +627,16 @@ function inputGrid() {
      push();
      translate(this.playerX,this.playerY);
      angleMode(RADIANS);
-
-     if(enemies.length > 0) {
-       if(autoAim) {
+     
+     if(autoAim) {
+       if(enemies.length > 0) {
          for (let i = 0; i < enemies.length; i++) {
            if (enemies.length === 1) {
              this.targetX = enemies[i].x;
              this.targetY = enemies[i].y;
              pTargetX = enemies[i].x;
              pTargetY = enemies[i].y;
-           }else {
+           }else{
              let xDifference = abs(this.playerX - enemies[i].x);
              let yDifference = abs(this.playerY - enemies[i].y);
              let targetDifferenceY = abs(this.playerY - this.targetY);
@@ -562,8 +663,8 @@ function inputGrid() {
       pTargetY = (mouseY - yT);
      }
 
-    playerAngle = atan2(this.targetY - this.playerY , this.targetX - this.playerX);
-    rotate(playerAngle);
+     playerAngle = atan2(this.targetY - this.playerY , this.targetX - this.playerX);
+     rotate(playerAngle);
 
      angleMode(DEGREES);
      rotate(90);
@@ -581,38 +682,45 @@ function inputGrid() {
      xCoord = floor(this.playerX/ cellSize);
      yCoord = floor(this.playerY / cellSize);
 
-     if( (yCoord <= 32 && yCoord >= 22 && xCoord <= 32 && xCoord >= 22) || (yCoord >= 65 && yCoord <= 75 && xCoord <= 32 && xCoord >= 22) 
-          || (yCoord >= 65 && yCoord <= 75 && xCoord >= 65 && xCoord <= 75) || (yCoord <= 32 && yCoord >= 22 && xCoord >= 65 && xCoord <= 75) ) {
-            switchSpawn = true;
-     }
-
+     if(gameStatus === 'survival') {
+       if( (yCoord <= 64 && yCoord >= 54 && xCoord <= 38 && xCoord >= 27) || (yCoord >= 54 && yCoord <= 64 && xCoord <= 64 && xCoord >= 54) || (yCoord >= 27 && yCoord <= 38 && xCoord >= 54 && xCoord <= 64) || (yCoord <= 38 && yCoord >= 27 && xCoord >= 27 && xCoord <= 38) ) {
+         spawnEnemy = false;
+        }
+      }else if(gameStatus === 'practice') {
+        if( (yCoord <= 43 && yCoord >= 33 && xCoord <= 43 && xCoord >= 33) ) {
+          spawnEnemy = false;
+        }else{
+          spawnEnemy = true;
+        }
+      }
+      
      if (grid[yCoord][xCoord] === 0) {
        grid[yCoord][xCoord] = 1;
       }
      if (grid[yCoord+1][xCoord] === 0) {
-      grid[yCoord+1][xCoord] = 1;
+       grid[yCoord+1][xCoord] = 1;
       }
      if (grid[yCoord+2][xCoord] === 0) {
-      grid[yCoord+2][xCoord] = 1;
-    }
-    if (grid[yCoord+2][xCoord+1] === 0) {
-      grid[yCoord+2][xCoord+1] = 1;
-    }
-    if (grid[yCoord+1][xCoord+1] === 0) {
-      grid[yCoord+1][xCoord+1] = 1;
-    }
-    if (grid[yCoord][xCoord+1] === 0) {
-      grid[yCoord][xCoord+1] = 1;
-    }
-    if (grid[yCoord][xCoord-1] === 0) {
-      grid[yCoord][xCoord-1] = 1;
-    }
-    if (grid[yCoord+1][xCoord-1] === 0) {
-      grid[yCoord+1][xCoord-1] = 1;
-    }
-    if (grid[yCoord][xCoord+2] === 0) {
-      grid[yCoord][xCoord+2] = 1;
-    }
+       grid[yCoord+2][xCoord] = 1;
+     }
+     if (grid[yCoord+2][xCoord+1] === 0) {
+       grid[yCoord+2][xCoord+1] = 1;
+     }
+     if (grid[yCoord+1][xCoord+1] === 0) {
+       grid[yCoord+1][xCoord+1] = 1;
+     }
+     if (grid[yCoord][xCoord+1] === 0) {
+       grid[yCoord][xCoord+1] = 1;
+     }
+     if (grid[yCoord][xCoord-1] === 0) {
+       grid[yCoord][xCoord-1] = 1;
+     }
+     if (grid[yCoord+1][xCoord-1] === 0) {
+       grid[yCoord+1][xCoord-1] = 1;
+     }
+     if (grid[yCoord][xCoord+2] === 0) {
+       grid[yCoord][xCoord+2] = 1;
+     }
     if (grid[yCoord+1][xCoord+2] === 0) {
       grid[yCoord+1][xCoord+2] = 1;
     }
@@ -634,18 +742,22 @@ function inputGrid() {
     if (grid[yCoord+2][xCoord-1] === 0) {
       grid[yCoord+2][xCoord-1] = 1;
     }
+
     if (grid[yCoord][xCoord+2]=== 3) {
       this.xVelocity *= -1;
       crashX = true;
     }
+
     if (grid[yCoord][xCoord-1]=== 3) {
       this.xVelocity *= -1;
       crashX = true;
     }
+
     if (grid[yCoord-1][xCoord+1]=== 3) {
       this.yVelocity *= -1;
       crashY = true;
     }
+
     if (grid[yCoord+2][xCoord]=== 3) {
       this.yVelocity *= -1;
       crashY = true;
@@ -654,17 +766,25 @@ function inputGrid() {
 
     if (crashX === true){
       if (this.xVelocity > 0) {
-        this.xVelocity += 5;
+        if(this.xVelocity < 10) {
+          this.xVelocity += 5;
+        }
       }else{
-        this.xVelocity -= 5;
+        if(this.xVelocity > -10) {
+          this.xVelocity -= 5;
+        }
       }
     }
 
     if (crashY === true) {
       if (this.yVelocity > 0) {
-        this.yVelocity += 5;
+        if(this.yVelocity < 10) {
+          this.yVelocity += 5;
+        }
       }else{
-        this.yVelocity -= 5;
+        if(this.yVelocity > -10) {
+          this.yVelocity -= 5;
+        }
       }
     }
   }
@@ -811,17 +931,11 @@ function inputGrid() {
     let lCoord = floor(this.west/cSize);
     let shiftDid = true;
 
-    
-    playerPositions.push({x:this.playerX, y:this.playerY});
-
     if (gate === "open") {
-      // for (let i = 0; i < playerPositions.length; i += 1) {
-      //   rect(playerPositions[i].x,playerPositions[i].y,40,40);
-      // }
       push();
       beginShape();
-      strokeWeight(10);
-      stroke(255);
+      strokeWeight(15);
+      stroke(127,0,255);
       vertex(this.playerX,this.playerY);
 
       if(this.shiftCoolDown >= 100) {
@@ -1155,15 +1269,6 @@ function inputGrid() {
       endShape();
       pop();
 
-    this.playerY += this.yVelocity;
-    this.south += this.yVelocity;
-    this.north += this.yVelocity;
-    this.playerX += this.xVelocity;
-    this.east += this.xVelocity;
-    this.west += this.xVelocity;
-    pBulletX += this.xVelocity;
-    pBulletY += this.yVelocity;
-
       if(this.shiftCoolDown >= 100) { 
         if(shiftDid) {
           this.shiftCoolDown -= 100;
@@ -1176,12 +1281,6 @@ function inputGrid() {
     if(this.shiftCoolDown < 700) {
       this.shiftCoolDown += 1;
     }
-
-    // if (gate === "closed") {
-    //   if (playerPositions.length > maxPos) {
-    //     playerPositions.shift();
-    //   }
-    // }
   }
 
   playerStats() {
@@ -1281,17 +1380,22 @@ function inputGrid() {
     rect(this.barX+40,this.barY-40,700,15);
     pop();
 
-    push();
-    textSize(50);
-    fill(225);
-    text(wave, this.barX+400, this.barY - 700);
-    pop();
+    if(gameStatus === 'survival') {
+      push();
+      textSize(50);
+      fill(225);
+      text(wave, this.barX+400, this.barY - 700);
+      pop();
+    }
 
     if(gameStatus === 'practice') {
       push();
       textSize(40);
       fill(225);
       text("Press R to spawn enemy", this.barX+900, this.barY - 100);
+      textSize(25);
+      fill(225);
+      text("Press 'b' to exit",this.barX+1000,this.barY - 750);
       pop();
     }
 
@@ -1367,8 +1471,6 @@ function inputGrid() {
      this.y = y;
      this.hit = hit;
      this.speed = 55;
-     this.oldX = this.x;
-     this.oldY = this.y;
      this.targetX = tX;
      this.targetY = tY;
      this.bulletAngle = atan2(this.targetY - this.y, this.targetX - this.x);
@@ -1387,8 +1489,6 @@ function inputGrid() {
       let cell = gridW/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
-      // let oXPos = floor(this.oldX/cell);
-      // let oYPos = floor(this.oldY/cell);
 
 
       if(grid[yPos][xPos]===3){
@@ -1405,16 +1505,7 @@ function inputGrid() {
       else if (grid[yPos][xPos]===0){
         grid[yPos][xPos] = 2;
       }
-
-      
-      // if(grid[oYPos][oXPos]=== 2) {
-      //   grid[oYPos][oXPos] = 0;
-      // }
-
-      // this.oldX = this.x;
-      // this.oldY = this.y;
     }
-
   }
  
 
@@ -1427,7 +1518,7 @@ function inputGrid() {
       }
     }
   }
-  console.log(mouseY);
+
  }
 
  
@@ -1495,15 +1586,18 @@ function inputGrid() {
     }
   }
   if (keyCode === 66) {
-    if(gameStatus = 'gameModes') {
+    if(gameStatus === 'gamemodes') {
       gameStatus = 'menu';
     }
-    if(gameStatus = 'options'){
+    else if(gameStatus === 'options'){
       gameStatus = 'menu';
     }
-    // if(gameStatus = 'practice'){
-    //   gameStatus = 'gamemodes';
-    // }
+    else if(gameStatus === 'practice'){
+      gameStatus = 'gamemodes';
+    }
+    else if(gameStatus === 'dead'){
+      gameStatus = 'menu';
+    }
   }
 }
 
@@ -1561,6 +1655,10 @@ class dashingEnemy {
 
     if (xDifference < 10 && yDifference < 10) {
       spawnEnemy = false;
+    }else{
+      if(gameStatus === 'practice') {
+        spawnEnemy = true;
+      }
     }
 
 
@@ -1672,7 +1770,7 @@ class dashingEnemy {
       this.speed -= 2;
     }
 
-    if(this.speed <= -20) {
+    if(this.speed <= -10) {
       this.speed = 0;
     }
 
@@ -1754,13 +1852,13 @@ class dashingEnemy {
 function practiceMode() {
   background(megaManBackground);
   translate(xT,yT);
-
   if(displayHitBox){
     displayGrid(grid, rows, cols);
   }
-  displayLevelBlocks(grid, rows, cols);
-  inputGrid();
+  displayLevelBlocks(grid, rows, cols,pLines);
+  inputGrid(pLines);
 
+  spawnPoints = [700,700];
   
   player.create();
   player.playerStats();
@@ -1796,14 +1894,8 @@ function survivalMode() {
   background(megaManBackground);
   translate(xT,yT);
   // displayGrid(grid, rows, cols);
-  displayLevelBlocks(grid, rows, cols);
-  inputGrid();
-
-  if(switchSpawn) {
-    spawnPoints = [700,700];
-  }else{
-    spawnPoints = [500,1300];
-  }
+  displayLevelBlocks(grid, rows, cols, sLines);
+  inputGrid(sLines);
   
   if(spawnEnemy) {
     let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
@@ -1851,7 +1943,20 @@ function survivalMode() {
   if(currentKills >= waveKills) {
     wave++;
     waveKills += 2;
+    if(spawnRate > 1000) {
+      spawnRate -= 500;
+    }
     currentKills = 0;
+  }
+
+  if(totalKills > highestKills) {
+    highestKills = totalKills;
+    storeItem("highestKills", highestKills);
+  }
+
+  if(wave > highestWave) {
+    highestWave = wave;
+    storeItem("highestWave", highestWave);
   }
 }
 
@@ -1861,44 +1966,47 @@ function optionsMenu() {
   textAlign(LEFT);
   textSize(35);
   fill(0);
-  text("Controls",width/2-600,height/2-300);
+  text("Controls",width/2-630,height/2-300);
   textSize(35);
   fill(0);
-  text("Enemy Info",width-370,height/2-300);
+  text("Enemy Info",width-400,height/2-300);
   textSize(30);
   fill(0);
-  text("Move Up - w",width/2-650,height/2-225);
+  text("Move Up - w",width/2-680,height/2-225);
   textSize(30);
   fill(0);
-  text("Move Down - s",width/2-650,height/2-150);
+  text("Move Down - s",width/2-680,height/2-150);
   textSize(30);
   fill(0);
-  text("Move Right - d",width/2-650,height/2-75);
+  text("Move Right - d",width/2-680,height/2-75);
   textSize(30);
   fill(0);
-  text("Move Left - a",width/2-650,height/2);
+  text("Move Left - a",width/2-680,height/2);
   textSize(30);
   fill(0);
   if(!autoAim) {
-    text("Shoot - Left Click",width/2-650,height/2+75);
+    text("Shoot - Left Click",width/2-680,height/2+75);
   }else{
-    text("Shoot - Spacebar",width/2-650,height/2+75);
+    text("Shoot - Spacebar",width/2-680,height/2+75);
   }
   textSize(30);
   fill(0);
-  text("Dash - shift",width/2-650,height/2+150);
+  text("Dash - shift",width/2-680,height/2+150);
   textSize(25);
   fill(0);
-  text("Display Hitbox's",width/2-580,height/2+225);
+  text("Display Hitbox's",width/2-610,height/2+225);
   textSize(25);
   fill(0);
-  text("Enable AutoAim",width/2-580,height/2+285);
+  text("Enable AutoAim",width/2-610,height/2+285);
+  textSize(25);
+  fill(0);
+  text("Press 'b' to exit",width-200,height-height + 20);
   pop();
 
   push();
   fill(0);
   noStroke();
-  rect(width/2-625,height/2+225,50,50);
+  rect(width/2-655,height/2+225,50,50);
   if(displayHitBox) {
     fill(0,255,0);
   }else{
@@ -1906,18 +2014,62 @@ function optionsMenu() {
   }
   noStroke();
   rectMode(CENTER);
-  rect(width/2-625,height/2+225,40,40);
+  rect(width/2-655,height/2+225,40,40);
 
   fill(0);
   noStroke();
-  rect(width/2-625,height/2+285,50,50);
+  rect(width/2-655,height/2+285,50,50);
   if(autoAim) {
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
   noStroke();
-  rect(width/2-625,height/2+285,40,40);
+  rect(width/2-655,height/2+285,40,40);
+  pop();
+
+  push();
+  imageMode(CENTER);
+  image(optionsVisual,width/2 - 50,height/2 + 25,600,600);
+  rectMode(CENTER);
+  noFill();
+  stroke(0);
+  strokeWeight(10);
+  rect(width/2 - 50,height/2 + 25,600,600);
+  strokeWeight(1);
+  fill(255);
+  stroke(0);
+  rect(width/2-330, height/2+240,100,15);
+  rect(width/2-350, height/2+275,100,15);
+  rect(width/2-340, height/2+310,100,15);
+
+  beginShape();
+  strokeWeight(3);
+  stroke(255);
+  vertex(width/2-330+50,height/2+240);
+  vertex(width/2-330+50+80,height/2+240 + 7 + 10);
+  endShape();
+
+  beginShape();
+  strokeWeight(3);
+  stroke(255);
+  vertex(width/2-350+50,height/2+275);
+  vertex(width/2-350+50+80,height/2+275 + 7);
+  endShape();
+
+  beginShape();
+  strokeWeight(3);
+  stroke(255);
+  vertex(width/2-340+50,height/2+310);
+  vertex(width/2-340+50+80,height/2+310);
+  endShape();
+
+  textAlign(CENTER);
+  textSize(12);
+  fill(0);
+  text("Ammo Bar",width/2-330, height/2+240);
+  text("Dash Meter",width/2-350, height/2+275);
+  text("Health Bar",width/2-340, height/2+310);
   pop();
 
   enemyInfoGrid[0][0]=1;
@@ -1969,6 +2121,15 @@ function deathMenu() {
   textSize(50);
   fill(0);
   text('Total Kills: ' + totalKills, windowWidth/2-170, windowHeight - windowHeight + 300);
+  textSize(50);
+  fill(0);
+  text('Highest Wave: ' + highestWave, windowWidth/2-170, windowHeight - windowHeight + 400);
+  textSize(50);
+  fill(0);
+  text('Highest Kills: ' + highestKills, windowWidth/2-170, windowHeight - windowHeight + 500);
+  textSize(25);
+  fill(0);
+  text("Press 'b' to return to menu",width-330,height-height + 20);
 }
 
 function playButton() {
@@ -2005,6 +2166,9 @@ function practiceButton() {
   textSize(50);
   fill(0);
   text("practice",width/2+300,height/2-100);
+  textSize(25);
+  fill(225);
+  text("Press 'b' to go back",width-120,height-height + 20);
 }
 
 function survivalButton() {
@@ -2015,6 +2179,16 @@ function survivalButton() {
   textSize(50);
   fill(0);
   text("Survival",width/2-300,height/2-100);
+}
+
+function retryButton() {
+  rectMode(CENTER);
+  fill(255);
+  rect(width/2, height/2 + 200, 400, 150);
+  textAlign(CENTER,CENTER);
+  textSize(50);
+  fill(0);
+  text("Retry",width/2,height/2+200);
 }
 
 function mouseClicked() {
@@ -2042,12 +2216,40 @@ function mouseClicked() {
     }
   }
 
+  if (gameStatus === 'dead') {
+    if(nextScreen) {
+      if (mouseX > width/2 - 200 && mouseX < width/2 + 200 && mouseY > height/2 + 200 - 75 && mouseY < height/2 + 200 + 75) {
+        gameStatus = 'buffer';
+        nextScreen = false;
+      }
+    }
+  }
+
   if(gameStatus === 'options') {
-    if (mouseX > width/2 - 625-20 && mouseX < width/2 - 625+20 && mouseY > height/2 + 225-20 && mouseY < height/2 + 225+20) {
+    if (mouseX > width/2 - 655-20 && mouseX < width/2 - 655+20 && mouseY > height/2 + 225-20 && mouseY < height/2 + 225+20) {
       displayHitBox = !displayHitBox;
     }
-    if (mouseX > width/2 - 625-20 && mouseX < width/2 - 625+20 && mouseY > height/2 + 285-20 && mouseY < height/2 + 285+20) {
+    if (mouseX > width/2 - 655-20 && mouseX < width/2 - 655+20 && mouseY > height/2 + 285-20 && mouseY < height/2 + 285+20) {
       autoAim = !autoAim;
     }
   } 
+}
+
+function reset() {
+  pBulletX = 650;
+  pBulletY = 400;
+  xT = 0;
+  yT = 0;
+  pHit = false;
+  wave = 1;
+  waveKills = 5;
+  currentKills = 0;
+  totalKills = 0;
+  spawnRate = 3500;
+  spawnEnemy = true;
+  switchSpawn = false;
+  eTimer = 0;
+  player = new Player();
+  enemies = [];
+  gate = "closed";
 }
