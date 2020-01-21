@@ -5,11 +5,13 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
+// Variables that are used to create the grid during gameplay
 let grid;
 let rows = 95;
 let cols = 95;
 let gridW = 1750;
 
+// Varibales used for the player and player bullets
 let pBulletX = 650;
 let pBulletY = 400;
 let pTargetX;
@@ -18,20 +20,23 @@ let xCoord;
 let yCoord;
 let player;
 let playerSprite;
+let bulletSprite;
 let direction = "up";
 let gate = "closed";
 let playerAngle;
 let bulletAngle;
 let bullets = [];
+let reload = false;
 
+// Variables used to adjust the screen when the player dashes
 let yT = 0;
 let xT = 0;
-
 let rDifference;
 let lDifference;
 let uDifference;
 let dDifference;
 
+// Variables used for the image tiles of the level
 let practiceModeTXT;
 let survivalModeTXT;
 let pLines;
@@ -85,6 +90,7 @@ let b42;
 let b43;
 let b44;
 
+// Variables used for the enemies that spawn
 let pHit = false;
 let eHitY;
 let eHitX;
@@ -92,10 +98,10 @@ let enemies = [];
 let dEnemySprite;
 let spawnPoints = [610,1100];
 
+// Variable used to change the different screens/status of the game
 let gameStatus = "menu";
 
-let reload = false;
-
+// Variables used for survival mode 
 let wave = 1;
 let waveKills = 5;
 let currentKills = 0;
@@ -106,20 +112,24 @@ let spawnRate = 3500;
 let spawnEnemy = true;
 let eTimer = 0;
 
+// Variables used for the enemy info chart in the options menu
 let enemyInfoGrid;
 let eCols = 7;
 let eRows = 4;
 let eGridSize = 320;
 
+// Variables used in the options screen
 let displayHitBox = false;
 let autoAim = false;
 let optionsVisual;
 
+// Variable used for when swicthing screens
 let nextScreen = true;
 
 
 
 function preload() {
+  // all the images, backgrounds and sprites that are used
   practiceModeTXT = "assets/Levels/level0.txt";
   survivalModeTXT = "assets/Levels/level1.txt";
   pLines = loadStrings(practiceModeTXT);
@@ -173,7 +183,7 @@ function preload() {
   b43 = loadImage("assets/shmup_stage/block43.PNG");
   b44 = loadImage("assets/shmup_stage/block44.PNG");
 
-
+  bulletSprite = loadImage("assets/bullet.png");
   dEnemySprite = loadImage("assets/dashingEnemySprite.png");
   playerSprite = loadImage("assets/spaceship_small_blue.png");
 }
@@ -188,6 +198,7 @@ function setup() {
   enemyInfoGrid = createEnemyGrid(eCols, eRows);
   player = new Player();
 
+  // used to store the highscore's in survival mode
   if(getItem("highestKills") !== null) {
     highestKills = getItem("highestKills");
   }else{
@@ -202,17 +213,25 @@ function setup() {
 }
 
 function draw() {
+  // The different game status's and what happens in each
   if(gameStatus === 'menu') {
-    background(0);
+    background(blackHoleBackground);
     playButton();
     optionsButton();
-    
+    push();
+    textSize(150);
+    textAlign(CENTER,CENTER);
+    fill(255,0,255);
+    stroke(0);
+    strokeWeight(20);
+    text("SWARM", width/2, height/2 + 200);
+    pop();
   }else if(gameStatus === 'options') {
     optionsMenu();
     infoBox();
   }
   else if (gameStatus === 'gamemodes') {
-    background(0);
+    background(blackHoleBackground);
     practiceButton();
     survivalButton();
     reset();
@@ -234,6 +253,7 @@ function draw() {
   
 }
 
+// function use to create the empty array for the 2d grid
 function createEmptyGrid() {
   let emptyGrid = [];
   for (let x = 0; x < cols; x++) {
@@ -245,6 +265,7 @@ function createEmptyGrid() {
   return emptyGrid;
 }
 
+// function used to create the options menu enemy grid display
 function createEnemyGrid() {
   let emptyGrid = [];
   for (let x = 0; x < eCols; x++) {
@@ -256,6 +277,7 @@ function createEnemyGrid() {
   return emptyGrid;
 }
 
+// function used to display the grid and the hitboxes of the player and enemies
 function displayGrid(grid, rows, cols) {
   let cellSize = gridW / cols;
   for (let y = 0; y < rows; y++) {
@@ -281,6 +303,7 @@ function displayGrid(grid, rows, cols) {
   }
 }
 
+// function used to display the level blocks
 function displayLevelBlocks(grid, rows, cols, lines) {
   let cellSize = gridW / cols;
   for (let y = 0; y < rows; y++) {
@@ -562,6 +585,7 @@ function displayLevelBlocks(grid, rows, cols, lines) {
   }
 }
 
+// function used to display the enemies in the enemy info grid
 function displayInfoGrid(grid, rows, cols) {
   let cellSize = eGridSize / rows;
   push();
@@ -586,7 +610,7 @@ function displayInfoGrid(grid, rows, cols) {
   pop();
 }
 
-
+// function that inputs each block from the textfile into the 2D grid 
 function inputGrid(text) {
   for (let y = 0; y < levelY; y++) {
     for (let x = 0; x < levelX; x++) {
@@ -600,7 +624,7 @@ function inputGrid(text) {
   }
 }
 
-
+// class used to create the player
  class Player {
    constructor() {
     this.playerX = 650;
@@ -623,11 +647,13 @@ function inputGrid(text) {
     this.targetY;
    }
 
+   // function that creates the player
    create() {
      push();
      translate(this.playerX,this.playerY);
      angleMode(RADIANS);
      
+     // algorithim used for the auto aim feature
      if(autoAim) {
        if(enemies.length > 0) {
          for (let i = 0; i < enemies.length; i++) {
@@ -674,6 +700,7 @@ function inputGrid(text) {
      pop();
     }
     
+   // function used to change the values of the grid according to where the player is
    gridCheck() {
      let cellSize = gridW/cols;
      let crashX = false;
@@ -682,6 +709,7 @@ function inputGrid(text) {
      xCoord = floor(this.playerX/ cellSize);
      yCoord = floor(this.playerY / cellSize);
 
+     // algorithim that checks to see if the player is on top of where the enemy spawns and makes it so that it can't spawn so the game doesn't crash
      if(gameStatus === 'survival') {
        if( (yCoord <= 64 && yCoord >= 54 && xCoord <= 38 && xCoord >= 27) || (yCoord >= 54 && yCoord <= 64 && xCoord <= 64 && xCoord >= 54) || (yCoord >= 27 && yCoord <= 38 && xCoord >= 54 && xCoord <= 64) || (yCoord <= 38 && yCoord >= 27 && xCoord >= 27 && xCoord <= 38) ) {
          spawnEnemy = false;
@@ -694,6 +722,7 @@ function inputGrid(text) {
         }
       }
       
+     // changes the values of the grid to the player's grid value
      if (grid[yCoord][xCoord] === 0) {
        grid[yCoord][xCoord] = 1;
       }
@@ -721,28 +750,29 @@ function inputGrid(text) {
      if (grid[yCoord][xCoord+2] === 0) {
        grid[yCoord][xCoord+2] = 1;
      }
-    if (grid[yCoord+1][xCoord+2] === 0) {
-      grid[yCoord+1][xCoord+2] = 1;
-    }
-    if (grid[yCoord+2][xCoord+2] === 0) {
-      grid[yCoord+2][xCoord+2] = 1;
-    }
-    if (grid[yCoord-1][xCoord+1] === 0) {
-      grid[yCoord-1][xCoord+1] = 1;
-    }
-    if (grid[yCoord-1][xCoord+2] === 0) {
-      grid[yCoord-1][xCoord+2] = 1;
-    }
-    if (grid[yCoord-1][xCoord] === 0) {
-      grid[yCoord-1][xCoord] = 1;
-    }
-    if (grid[yCoord-1][xCoord-1] === 0) {
-      grid[yCoord-1][xCoord-1] = 1;
-    }
-    if (grid[yCoord+2][xCoord-1] === 0) {
-      grid[yCoord+2][xCoord-1] = 1;
-    }
+     if (grid[yCoord+1][xCoord+2] === 0) {
+       grid[yCoord+1][xCoord+2] = 1;
+     }
+     if (grid[yCoord+2][xCoord+2] === 0) {
+       grid[yCoord+2][xCoord+2] = 1;
+     }
+     if (grid[yCoord-1][xCoord+1] === 0) {
+       grid[yCoord-1][xCoord+1] = 1;
+     }
+     if (grid[yCoord-1][xCoord+2] === 0) {
+       grid[yCoord-1][xCoord+2] = 1;
+     }
+     if (grid[yCoord-1][xCoord] === 0) {
+       grid[yCoord-1][xCoord] = 1;
+     }
+     if (grid[yCoord-1][xCoord-1] === 0) {
+       grid[yCoord-1][xCoord-1] = 1;
+     }
+     if (grid[yCoord+2][xCoord-1] === 0) {
+       grid[yCoord+2][xCoord-1] = 1;
+     }
 
+    // code that checks for collision with walls 
     if (grid[yCoord][xCoord+2]=== 3) {
       this.xVelocity *= -1;
       crashX = true;
@@ -789,6 +819,7 @@ function inputGrid(text) {
     }
   }
 
+  // function that controls the movement of the player
   movementControl() {
 
     rDifference = this.playerX + xT;
@@ -876,6 +907,7 @@ function inputGrid(text) {
       this.yVelocity += this.brakes;
     }
 
+    // algorithim that activates when the player collides with the enemy, knocking them back and lowering their health
     if (pHit === true) {
       if(gate === 'closed') {
         if((this.yVelocity <= this.maxSpeed && this.yVelocity >= 0) || (this.yVelocity >= -this.maxSpeed && this.yVelocity <= 0) ){
@@ -904,6 +936,7 @@ function inputGrid(text) {
     this.barX += this.xVelocity;
     this.barY += this.yVelocity;
     
+     // code used to translate the screen when the player dashes
      if(rDifference > 670) {
        xT -= 35;
        this.barX += 35;
@@ -923,6 +956,7 @@ function inputGrid(text) {
      
   }
 
+  // function used to create the players teleportation
   teleport() {
     let cSize = gridW/cols;
     let dCoord = floor(this.south/cSize);
@@ -933,11 +967,13 @@ function inputGrid(text) {
 
     if (gate === "open") {
       push();
+      // creates the streak made when the player dashes
       beginShape();
       strokeWeight(15);
       stroke(127,0,255);
       vertex(this.playerX,this.playerY);
 
+      // algorithim used to create the dashing of the player in each direction, making sure the area it's dashing in is empty
       if(this.shiftCoolDown >= 100) {
         if (direction === "up"){
           if(yCoord <= 14) {
@@ -1269,6 +1305,7 @@ function inputGrid(text) {
       endShape();
       pop();
 
+      // controls the cooldown of the player dashing making it so they cannot dash infinitely
       if(this.shiftCoolDown >= 100) { 
         if(shiftDid) {
           this.shiftCoolDown -= 100;
@@ -1283,6 +1320,7 @@ function inputGrid(text) {
     }
   }
 
+  // function that creates the healthbar, ammunition bar and dashing meter of the player
   playerStats() {
     push();
     rectMode(CORNER);
@@ -1390,6 +1428,7 @@ function inputGrid(text) {
 
     if(gameStatus === 'practice') {
       push();
+      textAlign(CENTER,CENTER);
       textSize(40);
       fill(225);
       text("Press R to spawn enemy", this.barX+900, this.barY - 100);
@@ -1399,6 +1438,7 @@ function inputGrid(text) {
       pop();
     }
 
+    // code that controls the player's health and ammunition bar when it loses health or shoots in either gamemode
     if(gameStatus === 'practice') {
       if(this.health < 800) {
         this.health += 10;
@@ -1428,6 +1468,7 @@ function inputGrid(text) {
         }
       }
     }
+
     else if(gameStatus === 'survival') {
       if(this.bulletCoolDown <= 0) {
         reload = true;
@@ -1459,12 +1500,9 @@ function inputGrid(text) {
       }
     }
   }
-
-
  }
 
-
-
+// class that creates the bullets of the player
  class playerBullet {
    constructor(x,y,hit,tX,tY) {
      this.x = x;
@@ -1476,20 +1514,23 @@ function inputGrid(text) {
      this.bulletAngle = atan2(this.targetY - this.y, this.targetX - this.x);
    }
 
+   // function that moves the bullet towards the mouse or the enemy if auto aim is enabled
    update() {
      this.x += this.speed*cos(this.bulletAngle);
      this.y += this.speed*sin(this.bulletAngle);
     }
-   create() {
-     fill(255);
-      circle(this.x, this.y,15);
-    }
 
-  gridUpdate() {
+   create() {
+     push();
+     rotate(bulletAngle);
+     image(bulletSprite,this.x, this.y,15,15);
+    }
+    
+   // function that changes the values of the grid to the bullet values 
+   gridUpdate() {
       let cell = gridW/cols;
       let xPos = floor(this.x/cell);
       let yPos = floor(this.y/cell);
-
 
       if(grid[yPos][xPos]===3){
         this.hit = true;
@@ -1509,6 +1550,7 @@ function inputGrid(text) {
   }
  
 
+// if the mouse is pressed, a bullet is pushed into the bullets list
  function mousePressed() {
    if(!autoAim) {
     if(reload === false) {
@@ -1518,10 +1560,9 @@ function inputGrid(text) {
       }
     }
   }
-
  }
 
- 
+ // key Pressed function that controls the player dash direction and dashing, auto aim shooting, spawning enemies in practice mode and switching to different screens and gamemodes of the game
  function keyPressed() {
    if (keyIsDown(87)) {
      if(keyIsDown(68)) {
@@ -1601,7 +1642,7 @@ function inputGrid(text) {
   }
 }
 
-
+// class that creates the enemy
 class dashingEnemy {
   constructor(x,y,health) {
     this.x = x;
@@ -1633,6 +1674,7 @@ class dashingEnemy {
     pop();
   }
 
+  // function that controls the enemy movement
   directionalInput() {
     this.move = true;
     let cellSize = gridW/cols;
@@ -1661,7 +1703,7 @@ class dashingEnemy {
       }
     }
 
-
+    // algorithim that controls the enemy's behaviour and checks to see if the enemy is near the player
     if(this.isT) {
       this.x += this.xV;
       this.y += this.yV;
@@ -1681,10 +1723,10 @@ class dashingEnemy {
         this.yPoint = pBulletY;
       }
       
-      if (xDifference < 6 && yDifference < 6) {
-          this.charge = true;
-          this.isT = false;
-        }
+      if(xDifference < 6 && yDifference < 6){
+        this.charge = true;
+        this.isT = false;
+      }
     }
 
     this.extendedAngle = atan2(this.yPoint - this.y, this.xPoint - this.x);
@@ -1693,8 +1735,8 @@ class dashingEnemy {
       this.bX = floor(this.bounce*cos(this.extendedAngle));
       this.bY = floor(this.bounce*sin(this.extendedAngle));
     }
-
-
+  
+    // algorithim that has the enemy charge towards the player when it's close
     if(this.charge) {
       if(this.wait >= 200) {
         this.wait -= 50;
@@ -1757,6 +1799,7 @@ class dashingEnemy {
       }
     }
     
+    // code that checks to see if the enemy has been hit 
     if (grid[eY][eX-1] === 2 || grid[eY][eX] === 2 || grid[eY-1][eX] === 2 || grid[eY-1][eX+1] === 2 || grid[eY+1][eX] === 2 || 
       grid[eY+2][eX] === 2 || grid[eY+2][eX+1] === 2 || grid[eY][eX+1] === 2 || grid[eY+1][eX+1] === 2 || grid[eY][eX+2] === 2 ||
       grid[eY+1][eX+2] === 2 || grid[eY+1][eX-1] === 2) {
@@ -1776,6 +1819,7 @@ class dashingEnemy {
 
   }
   
+  // function that changes the grid positions of the bullets to bullet values
   gridCheck() {
     let cellSize = gridW/cols;
     let eY = floor(this.y/cellSize);
@@ -1845,10 +1889,10 @@ class dashingEnemy {
       pHit = true;
     }
 
-    
   }
 }
 
+// function that carries all the functions used for practice mode
 function practiceMode() {
   background(megaManBackground);
   translate(xT,yT);
@@ -1866,20 +1910,20 @@ function practiceMode() {
   player.movementControl();
   player.teleport();
 
-  
+  // code that creates and destroys the player bullets
   for (let i =0; i < bullets.length; i++) {
     bullets[i].create();
     bullets[i].update();
     bullets[i].gridUpdate();
-    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
-      bullets[i].y < 55 || bullets[i].y > 1695) {
-        bullets.splice(i, 1);
+    if (bullets[i].x < 0 || bullets[i].x > 1750 || bullets[i].y < 55 || bullets[i].y > 1695) {
+      bullets.splice(i, 1);
     }
     else if (bullets[i].hit === true) {
       bullets.splice(i, 1);
     }
   }
   
+  // code that creates and destroys the enemies
   for (let j = 0; j < enemies.length; j++) {
     enemies[j].create();
     enemies[j].directionalInput();
@@ -1890,19 +1934,22 @@ function practiceMode() {
   }
 }
 
+// function that carries all the functions used for survival mode
 function survivalMode() {
   background(megaManBackground);
   translate(xT,yT);
-  // displayGrid(grid, rows, cols);
+  if(displayHitBox){
+    displayGrid(grid, rows, cols);
+  }
   displayLevelBlocks(grid, rows, cols, sLines);
   inputGrid(sLines);
   
+  // code that controls when enemies should spawn
   if(spawnEnemy) {
     let enemy1 = new dashingEnemy(random(spawnPoints),random(spawnPoints),5);
     enemies.push(enemy1);
     spawnEnemy = false;
   }
-  
   
   if(millis() > eTimer + spawnRate) {
     spawnEnemy = !spawnEnemy;
@@ -1920,9 +1967,8 @@ function survivalMode() {
     bullets[i].create();
     bullets[i].update();
     bullets[i].gridUpdate();
-    if (bullets[i].x < 0 || bullets[i].x > 1750 ||
-      bullets[i].y < 55 || bullets[i].y > 1695) {
-        bullets.splice(i, 1);
+    if (bullets[i].x < 0 || bullets[i].x > 1750 || bullets[i].y < 55 || bullets[i].y > 1695) {
+      bullets.splice(i, 1);
     }
     else if (bullets[i].hit === true) {
       bullets.splice(i, 1);
@@ -1940,6 +1986,7 @@ function survivalMode() {
     }
   }
 
+  // code that checks to see if the player has moved onto the next wave and keeps track of the kills the player has earned and decreases the spawnrate making the game harder
   if(currentKills >= waveKills) {
     wave++;
     waveKills += 2;
@@ -1949,6 +1996,7 @@ function survivalMode() {
     currentKills = 0;
   }
 
+  // checks to see if the player's current score is greater than the highscore
   if(totalKills > highestKills) {
     highestKills = totalKills;
     storeItem("highestKills", highestKills);
@@ -1960,6 +2008,7 @@ function survivalMode() {
   }
 }
 
+// function that creates all the display in the options menu
 function optionsMenu() {
   background(180);
   push();
@@ -1984,11 +2033,14 @@ function optionsMenu() {
   text("Move Left - a",width/2-680,height/2);
   textSize(30);
   fill(0);
+
+  // changes the display of controls if auto aim is enabled
   if(!autoAim) {
     text("Shoot - Left Click",width/2-680,height/2+75);
   }else{
     text("Shoot - Spacebar",width/2-680,height/2+75);
   }
+
   textSize(30);
   fill(0);
   text("Dash - shift",width/2-680,height/2+150);
@@ -2007,11 +2059,14 @@ function optionsMenu() {
   fill(0);
   noStroke();
   rect(width/2-655,height/2+225,50,50);
+
+  // changes the display of the hitbox button if hitbox is enabled
   if(displayHitBox) {
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
+
   noStroke();
   rectMode(CENTER);
   rect(width/2-655,height/2+225,40,40);
@@ -2019,11 +2074,14 @@ function optionsMenu() {
   fill(0);
   noStroke();
   rect(width/2-655,height/2+285,50,50);
+
+  // changes the display of the auto aim button if auto aim is enabled
   if(autoAim) {
     fill(0,255,0);
   }else{
     fill(255,0,0);
   }
+
   noStroke();
   rect(width/2-655,height/2+285,40,40);
   pop();
@@ -2036,7 +2094,7 @@ function optionsMenu() {
   stroke(0);
   strokeWeight(10);
   rect(width/2 - 50,height/2 + 25,600,600);
-  strokeWeight(1);
+  strokeWeight(2);
   fill(255);
   stroke(0);
   rect(width/2-330, height/2+240,100,15);
@@ -2045,28 +2103,29 @@ function optionsMenu() {
 
   beginShape();
   strokeWeight(3);
-  stroke(255);
+  stroke(0);
   vertex(width/2-330+50,height/2+240);
   vertex(width/2-330+50+80,height/2+240 + 7 + 10);
   endShape();
 
   beginShape();
   strokeWeight(3);
-  stroke(255);
+  stroke(0);
   vertex(width/2-350+50,height/2+275);
   vertex(width/2-350+50+80,height/2+275 + 7);
   endShape();
 
   beginShape();
   strokeWeight(3);
-  stroke(255);
+  stroke(0);
   vertex(width/2-340+50,height/2+310);
   vertex(width/2-340+50+80,height/2+310);
   endShape();
 
-  textAlign(CENTER);
+  textAlign(CENTER,CENTER);
   textSize(12);
   fill(0);
+  noStroke();
   text("Ammo Bar",width/2-330, height/2+240);
   text("Dash Meter",width/2-350, height/2+275);
   text("Health Bar",width/2-340, height/2+310);
@@ -2076,6 +2135,7 @@ function optionsMenu() {
   displayInfoGrid(enemyInfoGrid, eRows, eCols);
 }
 
+// function that creates the info box for the enemy in the options menu
 function infoBox() {
   if(gameStatus === 'options') {
     if(mouseX > 1010 && mouseX < 1100 && mouseY > 160 && mouseY < 240) {
@@ -2109,32 +2169,37 @@ function infoBox() {
   }
 }
 
+// functions that creates all the display for the death menu
 function deathMenu() {
-  background(220);
+  background(0);
   textAlign(LEFT);
   textSize(100);
-  fill(0);
+  fill(255,0,0);
   text('Game Over', width/2-250, height/2 - height/2 + 100);
   textSize(50);
-  fill(0);
-  text('Waves Cleared: ' + wave, windowWidth/2-170, windowHeight - windowHeight + 200);
+  fill(0,255,0);
+  text('Waves Cleared: ' + wave, windowWidth/2-400, windowHeight - windowHeight + 250);
   textSize(50);
-  fill(0);
-  text('Total Kills: ' + totalKills, windowWidth/2-170, windowHeight - windowHeight + 300);
+  fill(0,255,0);
+  text('Total Kills: ' + totalKills, windowWidth/2-400, windowHeight - windowHeight + 400);
   textSize(50);
-  fill(0);
-  text('Highest Wave: ' + highestWave, windowWidth/2-170, windowHeight - windowHeight + 400);
+  fill(51,171,249);
+  text('Highest Wave: ' + highestWave, windowWidth/2+70, windowHeight - windowHeight + 250);
   textSize(50);
-  fill(0);
-  text('Highest Kills: ' + highestKills, windowWidth/2-170, windowHeight - windowHeight + 500);
+  fill(51,171,249);
+  text('Highest Kills: ' + highestKills, windowWidth/2+70, windowHeight - windowHeight + 400);
   textSize(25);
-  fill(0);
+  fill(255);
   text("Press 'b' to return to menu",width-330,height-height + 20);
 }
 
+// functions that create the buttons in the main menu and gamemodes menu
 function playButton() {
+  push();
   rectMode(CENTER);
-  fill(255);
+  fill(255,0,255);
+  stroke(0);
+  strokeWeight(3);
   rect(width/2 - 300, height/2 - 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
@@ -2143,11 +2208,15 @@ function playButton() {
   textSize(30);
   fill(220);
   text("click",width/2-300,height/2-50);
+  pop();
 }
 
 function optionsButton() {
+  push();
   rectMode(CENTER);
-  fill(255);
+  fill(255,0,255);
+  stroke(0);
+  strokeWeight(3);
   rect(width/2 + 300, height/2 - 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
@@ -2156,11 +2225,15 @@ function optionsButton() {
   textSize(30);
   fill(220);
   text("click",width/2+300,height/2-50);
+  pop();
 }
 
 function practiceButton() {
+  push();
   rectMode(CENTER);
-  fill(255);
+  fill(255,0,255);
+  stroke(0);
+  strokeWeight(3);
   rect(width/2 + 300, height/2 - 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
@@ -2169,18 +2242,24 @@ function practiceButton() {
   textSize(25);
   fill(225);
   text("Press 'b' to go back",width-120,height-height + 20);
+  pop();
 }
 
 function survivalButton() {
+  push();
   rectMode(CENTER);
-  fill(255);
+  fill(255,0,255);
+  stroke(0);
+  strokeWeight(3);
   rect(width/2 - 300, height/2 - 100, 400, 150);
   textAlign(CENTER,CENTER);
   textSize(50);
   fill(0);
   text("Survival",width/2-300,height/2-100);
+  pop();
 }
 
+// retry button for the death menu
 function retryButton() {
   rectMode(CENTER);
   fill(255);
@@ -2191,6 +2270,7 @@ function retryButton() {
   text("Retry",width/2,height/2+200);
 }
 
+// mouseClicked function that checks and changes the state of the game and screen when the player has clicked on any of the buttons
 function mouseClicked() {
   nextScreen = true;
   if (gameStatus === 'menu') {
@@ -2225,6 +2305,7 @@ function mouseClicked() {
     }
   }
 
+  // code that checks in the options menu to see if the player has enabled hitbox display or the auto aim feature
   if(gameStatus === 'options') {
     if (mouseX > width/2 - 655-20 && mouseX < width/2 - 655+20 && mouseY > height/2 + 225-20 && mouseY < height/2 + 225+20) {
       displayHitBox = !displayHitBox;
@@ -2235,6 +2316,7 @@ function mouseClicked() {
   } 
 }
 
+// function that resets all the game variables for when any of the gamemodes are restarted
 function reset() {
   pBulletX = 650;
   pBulletY = 400;

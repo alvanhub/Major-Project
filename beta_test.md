@@ -1,10 +1,10 @@
 # Major Project Proposal
 
-## beta test 1 by Nirjhar
+## beta test 1 by Nirjhar(CS student)
 - feedback given: spelt cleared wrong
 - changes made: fixed the spelling of cleared
 
-## beta test 2 by Jordie
+## beta test 2 by Jordie(CS student)
 - feedback given: 
     - menus and options need to look better, everything else looks great
     - need to explain what red button does
@@ -23,7 +23,7 @@
     - added info on how to leave options and other screens
 
 
-## beta test 3 by Adam
+## beta test 3 by Adam(non-CS student)
 - feedback given: 
     - maybe add another weapon for player
     - maybe make the level area changeable to make it smaller and harder
