@@ -1,9 +1,6 @@
-// Project Title
-// Your Name
-// Date
-//
-// Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// SWARM
+// Alvan Alam
+// Jan 20, 2019
 
 // Variables that are used to create the grid during gameplay
 let grid;
